@@ -615,6 +615,8 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
       <button class="nb cabinet" data-tab="cabinet" onclick="switchTab('cabinet')"><span class="ni">👤</span><span class="nt">Кабинет</span></button>
       <button class="nb" data-tab="wheel" onclick="switchTab('wheel')" style="border-color:#FF4081;color:#FF4081"><span class="ni">🎡</span><span class="nt">Колесо</span></button>
       <button class="nb" data-tab="farm" onclick="switchTab('farm')" style="border-color:#4CAF50;color:#4CAF50"><span class="ni">🌱</span><span class="nt">Ферма</span></button>
+      <button class="nb" data-tab="achievements" onclick="switchTab('achievements')" style="border-color:#FFD700;color:#FFD700"><span class="ni">🏅</span><span class="nt">Достижения</span></button>
+      <button class="nb" data-tab="quests" onclick="switchTab('quests')" style="border-color:#00E5FF;color:#00E5FF"><span class="ni">📋</span><span class="nt">Квесты <span id="quest-counter" style="color:#FFD700;font-size:.65rem">0/3</span></span></button>
     </div>
     <div class="sbb">
       <div class="user-profile" id="user-profile" onclick="switchTab('cabinet')">
@@ -623,6 +625,14 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
         <div class="user-email" id="user-email">—</div>
         <button class="user-logout" onclick="event.stopPropagation();doLogout()" id="user-logout-btn" style="display:none">Выйти</button>
       </div>
+      <div class="level-card" style="background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,.25);position:relative;overflow:hidden">
+  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FFD700,#FF9800,#FF4081);background-size:200% 100%;animation:userBar 3s linear infinite"></div>
+  <div id="level-label" style="font-size:.72rem;font-weight:bold;color:#fff;text-align:center;margin-bottom:6px">⭐ Ур. 1 <span style="color:#a0a0b8;font-size:.65rem">Новичок</span></div>
+  <div style="background:rgba(0,0,0,.4);border-radius:6px;height:8px;overflow:hidden">
+    <div id="level-bar-fill" style="height:100%;background:linear-gradient(90deg,#FFD700,#FF9800);width:0%;transition:width .5s;box-shadow:0 0 8px rgba(255,215,0,.7)"></div>
+  </div>
+  <div id="level-text" style="font-size:.6rem;color:#a0a0b8;text-align:center;margin-top:4px">0 / 100 XP</div>
+</div>
       <button class="nb daily" onclick="claimDaily()" id="daily-btn"><span class="ni">🎁</span><span class="nt">Бонус</span></button>
       <button class="nb shop" onclick="openShop()"><span class="ni">🛒</span><span class="nt">Магазин</span></button>
       <button class="nb" onclick="openHistory()"><span class="ni">📜</span><span class="nt">История</span></button>
@@ -857,6 +867,38 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
     <div class="cd" style="margin-top:14px" id="wheel-cooldown"></div>
   </div>
 </div>
+<div class="tv" id="quests-view">
+  <div class="hr"><h1 style="background:linear-gradient(135deg,#00E5FF,#66CCFF,#FFD700);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">📋 Ежедневные квесты</h1></div>
+  <div style="max-width:760px;margin:0 auto">
+    <div class="ht" style="margin-bottom:16px">3 новых задания каждый день в 00:00</div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:1.1rem;color:#00E5FF;font-weight:bold;text-shadow:0 0 12px rgba(0,229,255,.6)">
+        Выполнено: <span id="quest-counter-big">0/3</span>
+      </div>
+      <div id="quest-reset-timer" style="font-size:.78rem;color:#a0a0b8;margin-top:6px">⏳ До сброса: --</div>
+    </div>
+    <div id="quest-list" style="display:grid;gap:12px"></div>
+  </div>
+</div>
+<div class="tv" id="achievements-view">
+  <div class="hr"><h1 style="background:linear-gradient(135deg,#FFD700,#FF9800,#FF4081);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">🏅 Достижения</h1></div>
+  <div style="max-width:900px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:1.2rem;color:#FFD700;font-weight:bold;text-shadow:0 0 12px rgba(255,215,0,.6)">
+        Открыто: <span id="ach-counter">0/20</span>
+      </div>
+      <div style="margin-top:10px;background:rgba(0,0,0,.3);border-radius:8px;height:8px;overflow:hidden;max-width:400px;margin:10px auto 0">
+        <div id="ach-progress-bar" style="height:100%;background:linear-gradient(90deg,#FFD700,#FF9800);width:0%;transition:width .5s;box-shadow:0 0 12px rgba(255,215,0,.6)"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap">
+      <button class="cpb s" id="ach-filter-all" onclick="setAchFilter('all')">Все</button>
+      <button class="cpb" id="ach-filter-open" onclick="setAchFilter('open')">Открытые</button>
+      <button class="cpb" id="ach-filter-locked" onclick="setAchFilter('locked')">Закрытые</button>
+    </div>
+    <div id="ach-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+  </div>
+</div>
     <div class="tv" id="cabinet-view">
       <div class="hr"><h1 style="background:linear-gradient(135deg, #00E5FF, #66CCFF, #9B59B6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">👤 Личный кабинет</h1></div>
       <div id="cabinet-content"></div>
@@ -1067,7 +1109,10 @@ function saveGame(){
       mySkins:mySkins.map(s=>({id:s.id,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star})),
       dMy:dMy.map(s=>({id:s.id,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star,icon:s.icon})),
       nextId,dNext,stats:window.__stats||{upgrades:0,wins:0,losses:0,crafts:0,best_win:0},
-      casinoStats:casinoStats};
+      casinoStats:casinoStats,
+      achievements:unlockedAch,
+    __stats:window.__stats,
+      playerXP:playerXP};
     localStorage.setItem(getSaveKey(),JSON.stringify(data));
   }catch(e){console.warn('Save failed',e);}
 }
@@ -1083,6 +1128,9 @@ function loadGame(){
     nextId=data.nextId??1;dNext=data.dNext??1;
     window.__stats=data.stats||{upgrades:0,wins:0,losses:0,crafts:0,best_win:0};
     if(data.casinoStats)casinoStats={...casinoStats,...data.casinoStats,spinning:false};
+    if(data.achievements)unlockedAch=data.achievements;
+    if(data.__stats)window.__stats={...window.__stats,...data.__stats};
+    if(data.playerXP!==undefined)playerXP=data.playerXP;
     return mySkins.length>0||dMy.length>0;
   }catch(e){console.warn('Load failed',e);return false;}
 }
@@ -1114,6 +1162,8 @@ function claimDaily(){
   const fg=Math.floor(DAILY_FRUIT*bonus);
   currency+=cg;dCur+=rg;fruit+=fg;
   sndWin();updateUI();updateDotaUI();updateDailyBtn();updateCasinoUI();updateFruitDisplay();
+  progressQuest('daily1');
+  checkAchievements();
   addHistory('daily','win',`День ${streak}/7: +${cg} 🪙, +${rg} 🪨, +${fg} 🍉`);
   saveGame();renderCabinet();
   showToast(`🎁 День ${streak}/7: +${cg} 🪙 +${rg} 🪨 +${fg} 🍉`);
@@ -1146,12 +1196,16 @@ function reloadPlayerSave(){
   casinoStats={total:0,wins:0,profit:0,spinning:false};
   rouletteStats={total:0,wins:0,profit:0};
   window.__stats={upgrades:0,wins:0,losses:0,crafts:0,best_win:0};
+  unlockedAch=[];
+  loadAchievements();
+  playerXP=0;
+  loadXP();
   const loaded=loadGame();
   if(!loaded){generateStarterSkins();dStart();}
   generateShopSkins();renderAll();updateUI();updatePanels();
   renderCraftSlots();renderCraftSkins();renderDotaAll();
   dRenderCraftSlots();dRenderCraftInventory();
-  updateDailyBtn();renderCabinet();updateCasinoUI();saveGame();farmLoad();farmTick();
+  updateDailyBtn();renderCabinet();updateCasinoUI();saveGame();checkAchievements();farmLoad();farmTick();
 }
 
 // ===== CABINET =====
@@ -1350,7 +1404,10 @@ function performCraft(){
     selectedFromSkins=selectedFromSkins.filter(s=>mySkins.some(m=>m.id===s.id));
     mySkins.push(ns);wonSkinPending=ns;craftSkins=[];
     renderCraftSlots();renderCraftSkins();renderMySkins();updateUI();updatePanels();
-    const _fr=Math.max(1,Math.floor(ns.price/150));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🔨 +${_fr} 🍉 за крафт!`),400);showCraftResult(ns,totalValue);saveGame();window.__stats.crafts++;renderCabinet();
+    const _fr=Math.max(1,Math.floor(ns.price/150*(1+getBonus())));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🔨 +${_fr} 🍉 за крафт!`),400);showCraftResult(ns,totalValue);saveGame();window.__stats.crafts++;renderCabinet();
+    progressQuest('craft2');progressQuest('craft5');
+    checkAchievements();
+    addXP(15);
     const diff=ns.price-totalValue;const diffStr=diff>=0?'+':'';
     addHistory('craft',diff>=0?'win':'lose',`Скрафчен: ${ns.name} (${ns.price}🪙, ${diffStr}${diff})`);
     if(navigator.vibrate) navigator.vibrate(30);
@@ -1374,6 +1431,8 @@ function switchTab(tab){
   else if(tab==='roulette'){drawRoulette();updateRouletteUI();}
   else if(tab==='wheel'){drawWheel();updateWheelCooldown();}
   else if(tab==='farm'){renderFarm();}
+  else if(tab==='achievements'){renderAchievements();}
+  else if(tab==='quests'){renderQuests();}
   else{renderMySkins();renderTargetSkins();}
 }
 function renderAll(){renderMySkins();renderTargetSkins();renderShop()}
@@ -1424,7 +1483,7 @@ function updateUI(){const c=calculateChance();const half=(c/100)*180;const gs=18
 function updateFruitDisplay(){const el=document.getElementById('sfa');if(el)el.textContent=fruit;}
 function openShop(){if(currentTab==='dota'||currentTab==='dota-craft'){generateDotaShop();renderDotaShop()}else{generateShopSkins();renderShop()}document.getElementById('shop-overlay').classList.add('show');sndTab()}
 function closeShop(){document.getElementById('shop-overlay').classList.remove('show');sndDeselect()}
-function buySkin(id,btn){const s=currentShopSkins.find(x=>x.id===id);if(!s)return;if(currency<s.price){showToast('Недостаточно монет!',true);sndToastError();return}currency-=s.price;mySkins.push({id:nextId++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен скин: '+s.name);renderMySkins();renderTargetSkins();renderCraftSkins();updateUI();renderShop();saveGame();renderCabinet()}
+function buySkin(id,btn){const s=currentShopSkins.find(x=>x.id===id);if(!s)return;if(currency<s.price){showToast('Недостаточно монет!',true);sndToastError();return}currency-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;mySkins.push({id:nextId++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен скин: '+s.name);renderMySkins();renderTargetSkins();renderCraftSkins();updateUI();renderShop();saveGame();renderCabinet()}
 function showToast(msg,er){const t=document.createElement('div');t.className='toast'+(er?' error':'');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
 
 function performUpgrade(){
@@ -1462,7 +1521,10 @@ function showResult(win){
     document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+selectedTo.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';
     addHistory('upgrade','win',`Получен: ${selectedTo.name} (${selectedTo.price}🪙)`);
     window.__stats.wins++;window.__stats.upgrades++;window.__stats.best_win=Math.max(window.__stats.best_win,selectedTo.price);
-    const _fr=Math.max(1,Math.floor(selectedTo.price/100));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🎉 +${_fr} 🍉 за апгрейд!`),400);
+    progressQuest('upg5');progressQuest('upg10');progressQuest('win3');
+    checkAchievements();
+    addXP(10);
+    const _fr=Math.max(1,Math.floor(selectedTo.price/100*(1+getBonus())));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🎉 +${_fr} 🍉 за апгрейд!`),400);
     if(navigator.vibrate) navigator.vibrate([30,50,30]);
   }else{
     document.getElementById('result-icon').textContent='💥';
@@ -1593,8 +1655,11 @@ function showDotaResult(win){
     createDotaParticles();
     document.getElementById('result-actions').innerHTML='<button class="rb3 sell rsell" onclick="sellDotaWon()">Продать за '+dSelT.price+' 🪨</button><button class="rb3 keep" onclick="closeDotaResult()">Оставить</button>';
     addHistory('dota','win',`Получен: ${dSelT.name} (${dSelT.price}🪨)`);
-    window.__stats.wins++;window.__stats.upgrades++;window.__stats.best_win=Math.max(window.__stats.best_win,dSelT.price);
-    const _fr=Math.max(1,Math.floor(dSelT.price/100));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🎉 +${_fr} 🍉 за Dota апгрейд!`),400);
+    window.__stats.wins++;window.__stats.upgrades++;window.__stats.best_win=Math.max(window.__stats.best_win,selectedTo.price);
+    progressQuest('upg5');progressQuest('upg10');progressQuest('win3');
+    checkAchievements();
+    addXP(10);
+    const _fr=Math.max(1,Math.floor(dSelT.price/100*(1+getBonus())));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🎉 +${_fr} 🍉 за Dota апгрейд!`),400);
     if(navigator.vibrate) navigator.vibrate([30,50,30]);
   }else{
     document.getElementById('result-icon').textContent='💥';
@@ -1616,7 +1681,7 @@ function closeDotaResult(){document.getElementById('result-overlay').classList.r
 function createDotaParticles(){const c=document.getElementById('dota-circle'),r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const colors=['#C6FF00','#00E676','#00E5FF','#ADE55C','#69F0AE'];const count=window.innerWidth<780?18:28;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='pt';p.style.left=cx+'px';p.style.top=cy+'px';p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 12px '+colors[i%colors.length];const a=(Math.PI*2*i)/count,d=120+Math.random()*180;p.style.setProperty('--tx',Math.cos(a)*d+'px');p.style.setProperty('--ty',Math.sin(a)*d+'px');document.body.appendChild(p);setTimeout(()=>p.remove(),1600)}}
 function generateDotaShop(){const c=DOTA_POOL.filter(s=>s.price>=90&&s.price<=505);const r=DOTA_POOL.filter(s=>s.price>505);for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}dShopItems=[...c.slice(0,5),...r.slice(0,7)].map(p=>dMake(p))}
 function renderDotaShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин предметов Dota 2';document.getElementById('shop-bal').innerHTML='<span class="ra">'+dCur+'</span> 🪨';let h='';dShopItems.forEach(s=>{const cb=dCur>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2 di2"><div class="siw2">'+dIcon(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2 rt">'+s.price+' 🪨</div><button class="sbb '+(cb?'rb2':'nb2')+'" onclick="buyDotaItem('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+dBar(s.price)+'</div>'});g.innerHTML=h}
-function buyDotaItem(id,btn){const s=dShopItems.find(x=>x.id===id);if(!s)return;if(dCur<s.price){showToast('Недостаточно рун!',true);sndToastError();return}dCur-=s.price;dMy.push({id:dNext++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star,icon:s.icon});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен предмет: '+s.name);renderDotaMy();renderDotaTgt();updateDotaUI();renderDotaShop();dRenderCraftInventory();saveGame();renderCabinet()}
+function buyDotaItem(id,btn){const s=dShopItems.find(x=>x.id===id);if(!s)return;if(dCur<s.price){showToast('Недостаточно рун!',true);sndToastError();return}dCur-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;dMy.push({id:dNext++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star,icon:s.icon});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен предмет: '+s.name);renderDotaMy();renderDotaTgt();updateDotaUI();renderDotaShop();dRenderCraftInventory();saveGame();renderCabinet()}
 function renderDotaAll(){renderDotaMy();renderDotaTgt();updateDotaUI();dUpdatePanels()}
 
 // ===== DOTA 2 CRAFT =====
@@ -1689,7 +1754,10 @@ function dPerformCraft(){
     dSelF=dSelF.filter(s=>dMy.some(m=>m.id===s.id));
     dMy.push(ns);dWon=ns;dCraftItems=[];
     dRenderCraftSlots();dRenderCraftInventory();renderDotaMy();updateDotaUI();dUpdatePanels();
-    const _fr=Math.max(1,Math.floor(ns.price/150));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🔨 +${_fr} 🍉 за крафт!`),400);showCraftResult(ns,totalValue);saveGame();window.__stats.crafts++;renderCabinet();
+    const _fr=Math.max(1,Math.floor(ns.price/150*(1+getBonus())));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🔨 +${_fr} 🍉 за крафт!`),400);showCraftResult(ns,totalValue);saveGame();window.__stats.crafts++;renderCabinet();
+    progressQuest('craft2');progressQuest('craft5');
+    checkAchievements();
+    addXP(15);
     const diff=ns.price-totalValue;const diffStr=diff>=0?'+':'';
     addHistory('dota-craft',diff>=0?'win':'lose',`Скрафчен: ${ns.name} (${ns.price}🪨, ${diffStr}${diff})`);
     if(navigator.vibrate) navigator.vibrate(30);
@@ -1868,7 +1936,7 @@ function calculateSlotResult(symbols){
     const multiplier = PAYOUTS[combo] || 2;
     winAmount = currentBet * multiplier;
     isJackpot = (combo === '7️⃣7️⃣7️⃣');
-    
+    if(isJackpot)window.__stats.jackpotHit=true;
     if(isJackpot){
       resultText = '🎉🎉🎉 ДЖЕКПОТ!!! x50 🎉🎉🎉';
       resultClass = 'casino-result jackpot';
@@ -1938,6 +2006,9 @@ function calculateSlotResult(symbols){
   resultEl.className = resultClass;
   
   updateCasinoStats();
+  progressQuest('casino10');progressQuest('casino25');
+  checkAchievements();
+  addXP(3);
 }
 
 function updateCasinoStats(){
@@ -2158,6 +2229,8 @@ function calculateRouletteResult(num){
   }
 
   updateUI();updateFruitDisplay();updateCasinoUI();saveGame();renderCabinet();
+  progressQuest('roulette5');progressQuest('roulette15');
+  checkAchievements();
   updateRouletteStats();
 }
 
@@ -2180,6 +2253,372 @@ function updateRouletteUI(){
   });
   const btn=document.getElementById('roulette-spin-btn');
   if(btn)btn.disabled=fruit<rouletteBet||rouletteSpinning;
+}
+// ===== ЕЖЕДНЕВНЫЕ КВЕСТЫ =====
+const QUESTS_KEY='cs2_dota_quests';
+const QUEST_POOL=[
+  {id:'upg5',icon:'⬆️',text:'Сделай 5 апгрейдов',target:5,reward:{coins:500}},
+  {id:'upg10',icon:'⚡',text:'Сделай 10 апгрейдов',target:10,reward:{coins:1000}},
+  {id:'win3',icon:'🎯',text:'Выиграй 3 апгрейда',target:3,reward:{fruit:300}},
+  {id:'craft2',icon:'🔨',text:'Скрафти 2 скина',target:2,reward:{coins:400}},
+  {id:'craft5',icon:'🛠',text:'Скрафти 5 скинов',target:5,reward:{coins:800}},
+  {id:'casino10',icon:'🎰',text:'Крути слоты 10 раз',target:10,reward:{fruit:300}},
+  {id:'casino25',icon:'🎲',text:'Крути слоты 25 раз',target:25,reward:{fruit:800}},
+  {id:'roulette5',icon:'🎡',text:'Крути рулетку 5 раз',target:5,reward:{fruit:200}},
+  {id:'roulette15',icon:'🎯',text:'Крути рулетку 15 раз',target:15,reward:{fruit:500}},
+  {id:'farm2',icon:'🌱',text:'Собери ферму 2 раза',target:2,reward:{coins:600}},
+  {id:'daily1',icon:'🎁',text:'Забери ежедневный бонус',target:1,reward:{fruit:200}},
+  {id:'wheel1',icon:'🎡',text:'Крути колесо фортуны',target:1,reward:{coins:300}},
+];
+let dailyQuests=[];
+let dailyProgress={};
+let questsDate='';
+
+function getQuestsKey(){return currentUser?`${QUESTS_KEY}_${currentUser.login}`:`${QUESTS_KEY}_guest`;}
+
+function todayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+function loadQuests(){
+  try{
+    const raw=localStorage.getItem(getQuestsKey());
+    if(raw){
+      const d=JSON.parse(raw);
+      if(d.date===todayStr()){
+        dailyQuests=d.quests||[];
+        dailyProgress=d.progress||{};
+        questsDate=d.date;
+        return;
+      }
+    }
+  }catch(e){}
+  generateDailyQuests();
+}
+
+function generateDailyQuests(){
+  const shuffled=[...QUEST_POOL].sort(()=>Math.random()-0.5);
+  dailyQuests=shuffled.slice(0,3);
+  dailyProgress={};
+  dailyQuests.forEach(q=>dailyProgress[q.id]=0);
+  questsDate=todayStr();
+  saveQuests();
+}
+
+function saveQuests(){
+  try{
+    localStorage.setItem(getQuestsKey(),JSON.stringify({
+      date:questsDate,
+      quests:dailyQuests,
+      progress:dailyProgress
+    }));
+  }catch(e){}
+}
+
+function progressQuest(id,amount=1){
+  if(!dailyQuests.find(q=>q.id===id))return;
+  const q=dailyQuests.find(q=>q.id===id);
+  if(dailyProgress[id]>=q.target)return; // уже выполнено
+  dailyProgress[id]=(dailyProgress[id]||0)+amount;
+  if(dailyProgress[id]>=q.target){
+    dailyProgress[id]=q.target;
+    // Награда
+    if(q.reward.coins)currency+=q.reward.coins;
+    if(q.reward.fruit)fruit+=q.reward.fruit;
+    if(q.reward.runes)dCur+=q.reward.runes;
+    addXP(20);
+    sndWin();
+    setTimeout(()=>{
+      showToast(`✅ Квест "${q.text}" выполнен! +${q.reward.coins||q.reward.fruit} ${q.reward.coins?'🪙':'🍉'}`);
+    },400);
+    addHistory('quest','win',`Квест "${q.text}" — награда ${q.reward.coins||q.reward.fruit} ${q.reward.coins?'🪙':'🍉'}`);
+  }
+  saveQuests();
+  updateQuestCounter();
+  if(currentTab==='quests')renderQuests();
+  saveGame();
+}
+function renderQuests(){
+  questsRefreshNeeded();
+  const list=document.getElementById('quest-list');
+  if(!list)return;
+  let html='';
+  dailyQuests.forEach(q=>{
+    const prog=dailyProgress[q.id]||0;
+    const done=prog>=q.target;
+    const pct=Math.min(100,Math.round(prog/q.target*100));
+    const reward=q.reward.coins?`${q.reward.coins} 🪙`:(q.reward.fruit?`${q.reward.fruit} 🍉`:`${q.reward.runes} 🪨`);
+    const bg=done?'linear-gradient(135deg,rgba(0,230,118,.18),rgba(0,230,118,.06))':'linear-gradient(135deg,rgba(60,50,90,.5),rgba(40,30,70,.5))';
+    const border=done?'2px solid rgba(0,230,118,.6)':'2px solid rgba(255,255,255,.1)';
+    const shadow=done?'0 0 24px rgba(0,230,118,.4)':'none';
+    html+=`<div style="background:${bg};border:${border};border-radius:14px;padding:16px;box-shadow:${shadow};position:relative;transition:all .3s">
+      ${done?'<div style="position:absolute;top:10px;right:12px;font-size:1.4rem">✅</div>':''}
+      <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
+        <div style="font-size:2.4rem;filter:${done?'drop-shadow(0 0 10px rgba(0,230,118,.6))':'none'}">${q.icon}</div>
+        <div style="flex:1">
+          <div style="font-weight:bold;font-size:.95rem;color:${done?'#00E676':'#fff'};margin-bottom:3px">${q.text}</div>
+          <div style="font-size:.75rem;color:#a0a0b8">🎁 Награда: <span style="color:#FFD700;font-weight:bold">${reward}</span> + 20 XP</div>
+        </div>
+      </div>
+      <div style="background:rgba(0,0,0,.4);border-radius:6px;height:10px;overflow:hidden;margin-bottom:6px">
+        <div style="height:100%;background:linear-gradient(90deg,${done?'#00E676,#4CAF50':'#00E5FF,#66CCFF'});width:${pct}%;transition:width .4s;box-shadow:0 0 10px ${done?'rgba(0,230,118,.7)':'rgba(0,229,255,.5)'}"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.7rem;color:#a0a0b8">
+        <span>${prog} / ${q.target}</span>
+        <span style="color:${done?'#00E676':'#8080a0'};font-weight:bold">${done?'ВЫПОЛНЕНО':pct+'%'}</span>
+      </div>
+    </div>`;
+  });
+  list.innerHTML=html;
+  // Обновить счётчики
+  const done=dailyQuests.filter(q=>dailyProgress[q.id]>=q.target).length;
+  const big=document.getElementById('quest-counter-big');
+  if(big)big.textContent=`${done}/${dailyQuests.length}`;
+  updateQuestCounter();
+  updateQuestTimer();
+}
+
+function updateQuestTimer(){
+  const el=document.getElementById('quest-reset-timer');
+  if(!el)return;
+  const now=new Date();
+  const tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,0);
+  const left=tomorrow-now;
+  const h=Math.floor(left/3600000);
+  const m=Math.floor((left%3600000)/60000);
+  el.textContent=`⏳ До сброса: ${h}ч ${m}м`;
+}
+setInterval(()=>{if(currentTab==='quests')updateQuestTimer();},60000);
+function updateQuestCounter(){
+  const el=document.getElementById('quest-counter');
+  if(!el)return;
+  const done=dailyQuests.filter(q=>dailyProgress[q.id]>=q.target).length;
+  el.textContent=`${done}/${dailyQuests.length}`;
+}
+
+function questsRefreshNeeded(){
+  if(questsDate!==todayStr()){
+    generateDailyQuests();
+    if(currentTab==='quests')renderQuests();
+  }
+}
+// ===== УРОВНИ АККАУНТА =====
+const XP_KEY='cs2_dota_xp';
+const LEVELS=[
+  {lvl:1,xp:0,bonus:0,title:'Новичок'},
+  {lvl:2,xp:100,bonus:0,title:'Ученик'},
+  {lvl:3,xp:250,bonus:0,title:'Игрок'},
+  {lvl:4,xp:500,bonus:0.02,title:'Опытный'},
+  {lvl:5,xp:1000,bonus:0.05,title:'Боец'},
+  {lvl:7,xp:2500,bonus:0.07,title:'Ветеран'},
+  {lvl:10,xp:5000,bonus:0.10,title:'Мастер'},
+  {lvl:15,xp:12000,bonus:0.15,title:'Гуру'},
+  {lvl:20,xp:25000,bonus:0.20,title:'Легенда'},
+  {lvl:30,xp:80000,bonus:0.30,title:'Чемпион'},
+  {lvl:50,xp:200000,bonus:0.50,title:'Бессмертный'},
+];
+let playerXP=0;
+
+function getXPKey(){return currentUser?`${XP_KEY}_${currentUser.login}`:`${XP_KEY}_guest`;}
+
+function loadXP(){
+  try{
+    const raw=localStorage.getItem(getXPKey());
+    if(raw)playerXP=parseInt(raw,10)||0;
+  }catch(e){playerXP=0;}
+}
+
+function saveXP(){
+  try{localStorage.setItem(getXPKey(),playerXP.toString());}catch(e){}
+}
+
+function getLevel(){
+  let cur=LEVELS[0];
+  for(const l of LEVELS){if(playerXP>=l.xp)cur=l;}
+  return cur;
+}
+
+function getNextLevel(){
+  for(const l of LEVELS){if(playerXP<l.xp)return l;}
+  return null;
+}
+
+function getBonus(){
+  return getLevel().bonus;
+}
+
+function addXP(amount){
+  const oldLevel=getLevel().lvl;
+  playerXP+=amount;
+  const newLevel=getLevel().lvl;
+  if(newLevel>oldLevel){
+    const l=getLevel();
+    showToast(`⭐ Уровень ${l.lvl}! ${l.title}${l.bonus>0?` (+${Math.round(l.bonus*100)}% к наградам)`:''}`);
+    sndWin();
+    casinoRainCoins(10);
+    if(navigator.vibrate)navigator.vibrate([30,50,30,50,100]);
+  }
+  updateLevelUI();
+  saveXP();
+  saveGame();
+}
+
+function updateLevelUI(){
+  const l=getLevel();
+  const n=getNextLevel();
+  const bar=document.getElementById('level-bar-fill');
+  const txt=document.getElementById('level-text');
+  const lbl=document.getElementById('level-label');
+  if(!bar)return;
+  if(n){
+    const prev=l.xp;
+    const pct=Math.min(100,Math.round((playerXP-prev)/(n.xp-prev)*100));
+    bar.style.width=pct+'%';
+    txt.textContent=`${playerXP} / ${n.xp} XP`;
+  } else {
+    bar.style.width='100%';
+    txt.textContent=`${playerXP} XP (MAX)`;
+  }
+  if(lbl)lbl.innerHTML=`⭐ Ур. ${l.lvl} <span style="color:#a0a0b8;font-size:.7rem">${l.title}</span>${l.bonus>0?` <span style="color:#00E676">+${Math.round(l.bonus*100)}%</span>`:''}`;
+}
+// ===== ДОСТИЖЕНИЯ =====
+const ACH_KEY='cs2_dota_achievements';
+const ACHIEVEMENTS=[
+  {id:'first_upgrade',icon:'🎯',name:'Первый апгрейд',desc:'Сделай 1 апгрейд',reward:{coins:500},check:s=>s.upgrades>=1},
+  {id:'first_craft',icon:'🔨',name:'Мастер крафта',desc:'Скрафти 1 скин',reward:{coins:500},check:s=>s.crafts>=1},
+  {id:'first_casino',icon:'🎰',name:'Первая ставка',desc:'Крути слоты 1 раз',reward:{fruit:100},check:s=>s.casinoTotal>=1},
+  {id:'first_roulette',icon:'🎡',name:'Колесо удачи',desc:'Крути рулетку 1 раз',reward:{fruit:100},check:s=>s.rouletteTotal>=1},
+  {id:'first_farm',icon:'🌱',name:'Первый урожай',desc:'Собери ферму 1 раз',reward:{coins:300},check:s=>s.farmCollects>=1},
+  {id:'wins_10',icon:'🔥',name:'В ударе',desc:'Выиграй 10 апгрейдов',reward:{coins:1000},check:s=>s.wins>=10},
+  {id:'wins_100',icon:'💪',name:'Ветеран',desc:'Выиграй 100 апгрейдов',reward:{coins:5000},check:s=>s.wins>=100},
+  {id:'upgrades_50',icon:'⚡',name:'Апгрейдер',desc:'Сделай 50 апгрейдов',reward:{coins:3000},check:s=>s.upgrades>=50},
+  {id:'crafts_25',icon:'🛠',name:'Кузнец',desc:'Сделай 25 крафтов',reward:{coins:2500},check:s=>s.crafts>=25},
+  {id:'casino_100',icon:'🎲',name:'Игрок',desc:'100 спинов в казино',reward:{fruit:1000},check:s=>s.casinoTotal>=100},
+  {id:'roulette_50',icon:'🎯',name:'Снайпер рулетки',desc:'50 спинов рулетки',reward:{fruit:500},check:s=>s.rouletteTotal>=50},
+  {id:'collector_25',icon:'💎',name:'Коллекционер',desc:'Собери 25 скинов',reward:{coins:2000},check:s=>s.skinsCount>=25},
+  {id:'farmer_5k',icon:'🌾',name:'Фермер',desc:'Собери 5 000 🍉 с фермы',reward:{coins:3000},check:s=>s.farmTotal>=5000},
+  {id:'wins_500',icon:'👑',name:'Легенда',desc:'Выиграй 500 апгрейдов',reward:{coins:25000},check:s=>s.wins>=500},
+  {id:'spend_100k',icon:'💸',name:'Транжира',desc:'Потрать 100 000 🪙',reward:{coins:10000},check:s=>s.totalSpent>=100000},
+  {id:'collector_100',icon:'🏆',name:'Коллекционер+',desc:'Собери 100 скинов',reward:{coins:15000},check:s=>s.skinsCount>=100},
+  {id:'dragon_lore',icon:'🐉',name:'Дракон',desc:'Выиграй Dragon Lore',reward:{coins:50000},check:s=>s.hasDragonLore},
+  {id:'jackpot',icon:'💰',name:'Джекпот!',desc:'Собери 7️⃣7️⃣7️⃣ в казино',reward:{fruit:5000},check:s=>s.jackpotHit},
+  {id:'green_zero',icon:'🟢',name:'Зеро!',desc:'Выиграй на зеро в рулетке',reward:{fruit:3000},check:s=>s.greenZeroHit},
+  {id:'lose_100',icon:'💀',name:'Не сдавайся',desc:'Проиграй 100 раз',reward:{coins:5000},check:s=>s.losses>=100},
+];
+
+let unlockedAch=[];
+
+function getAchKey(){return currentUser?`${ACH_KEY}_${currentUser.login}`:`${ACH_KEY}_guest`;}
+
+function loadAchievements(){
+  try{
+    const raw=localStorage.getItem(getAchKey());
+    if(raw)unlockedAch=JSON.parse(raw);
+  }catch(e){unlockedAch=[];}
+}
+
+function saveAchievements(){
+  try{localStorage.setItem(getAchKey(),JSON.stringify(unlockedAch));}catch(e){}
+}
+
+function checkAchievements(){
+  const stats={
+    upgrades:window.__stats?.upgrades||0,
+    wins:window.__stats?.wins||0,
+    losses:window.__stats?.losses||0,
+    crafts:window.__stats?.crafts||0,
+    best_win:window.__stats?.best_win||0,
+    skinsCount:mySkins.length+dMy.length,
+    casinoTotal:casinoStats?.total||0,
+    rouletteTotal:typeof rouletteStats!=='undefined'?rouletteStats.total:0,
+    farmCollects:window.__stats?.farmCollects||0,
+    farmTotal:window.__stats?.farmTotal||0,
+    totalSpent:window.__stats?.totalSpent||0,
+    hasDragonLore:mySkins.some(s=>s.name&&s.name.includes('Dragon Lore')),
+    jackpotHit:window.__stats?.jackpotHit||false,
+    greenZeroHit:window.__stats?.greenZeroHit||false,
+  };
+  ACHIEVEMENTS.forEach(a=>{
+    if(unlockedAch.includes(a.id))return;
+    if(a.check(stats)){
+      unlockedAch.push(a.id);
+      if(a.reward.coins)currency+=a.reward.coins;
+      if(a.reward.fruit)fruit+=a.reward.fruit;
+      if(a.reward.runes)dCur+=a.reward.runes;
+      setTimeout(()=>{
+        showToast(`🏅 ${a.icon} ${a.name}! +${a.reward.coins||a.reward.fruit||a.reward.runes} ${a.reward.coins?'🪙':(a.reward.fruit?'🍉':'🪨')}`);
+        sndWin();
+      },500);
+    }
+  });
+  saveAchievements();
+  updateAchCounter();
+}
+let achFilter='all';
+
+function setAchFilter(f){
+  achFilter=f;
+  document.getElementById('ach-filter-all').classList.toggle('s',f==='all');
+  document.getElementById('ach-filter-open').classList.toggle('s',f==='open');
+  document.getElementById('ach-filter-locked').classList.toggle('s',f==='locked');
+  renderAchievements();
+  sndSelect();
+}
+
+function renderAchievements(){
+  const list=document.getElementById('ach-list');
+  if(!list)return;
+  const stats={
+    upgrades:window.__stats?.upgrades||0,
+    wins:window.__stats?.wins||0,
+    losses:window.__stats?.losses||0,
+    crafts:window.__stats?.crafts||0,
+    skinsCount:mySkins.length+dMy.length,
+    casinoTotal:casinoStats?.total||0,
+    rouletteTotal:typeof rouletteStats!=='undefined'?rouletteStats.total:0,
+    farmCollects:window.__stats?.farmCollects||0,
+    farmTotal:window.__stats?.farmTotal||0,
+    totalSpent:window.__stats?.totalSpent||0,
+    hasDragonLore:mySkins.some(s=>s.name&&s.name.includes('Dragon Lore')),
+    jackpotHit:window.__stats?.jackpotHit||false,
+    greenZeroHit:window.__stats?.greenZeroHit||false,
+  };
+  let html='';
+  ACHIEVEMENTS.forEach(a=>{
+    const unlocked=unlockedAch.includes(a.id);
+    if(achFilter==='open'&&!unlocked)return;
+    if(achFilter==='locked'&&unlocked)return;
+    const reward=a.reward.coins?`${a.reward.coins} 🪙`:(a.reward.fruit?`${a.reward.fruit} 🍉`:`${a.reward.runes} 🪨`);
+    const bg=unlocked?'linear-gradient(135deg,rgba(255,215,0,.18),rgba(255,152,0,.1))':'linear-gradient(135deg,rgba(60,60,90,.5),rgba(40,40,60,.5))';
+    const border=unlocked?'2px solid rgba(255,215,0,.6)':'2px solid rgba(255,255,255,.1)';
+    const shadow=unlocked?'0 0 20px rgba(255,215,0,.3)':'none';
+    html+=`<div style="background:${bg};border:${border};border-radius:14px;padding:14px;box-shadow:${shadow};position:relative;transition:all .25s">
+      ${unlocked?'<div style="position:absolute;top:8px;right:8px;font-size:1.2rem">✅</div>':''}
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="font-size:2.4rem;filter:${unlocked?'drop-shadow(0 0 10px rgba(255,215,0,.6))':'grayscale(.7) opacity(.5)'}">${a.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:bold;font-size:.92rem;color:${unlocked?'#FFEB3B':'#c0c0d8'};margin-bottom:3px">${a.name}</div>
+          <div style="font-size:.72rem;color:#a0a0b8;line-height:1.3">${a.desc}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:.72rem">
+        <span style="color:#FFD700;font-weight:bold">🎁 ${reward}</span>
+        <span style="color:${unlocked?'#00E676':'#8080a0'};font-weight:bold">${unlocked?'ОТКРЫТО':'🔒 ЗАКРЫТО'}</span>
+      </div>
+    </div>`;
+  });
+  if(!html)html='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#a0a0b8;font-style:italic">Ничего нет в этой категории</div>';
+  list.innerHTML=html;
+  // Прогресс-бар
+  const pct=Math.round(unlockedAch.length/ACHIEVEMENTS.length*100);
+  const bar=document.getElementById('ach-progress-bar');
+  if(bar)bar.style.width=pct+'%';
+}
+function updateAchCounter(){
+  const el=document.getElementById('ach-counter');
+  if(el)el.textContent=`${unlockedAch.length}/${ACHIEVEMENTS.length}`;
+  if(currentTab==='achievements')renderAchievements();
 }
 // ===== МОБИЛЬНЫЕ СВАЙПЫ =====
 let touchStartX=0, touchStartY=0, swipeEnabled=true;
@@ -2285,6 +2724,7 @@ function spinWheel(){
       else if(prize.type==='coins')currency+=prize.value;
       else if(prize.type==='runes')dCur+=prize.value;
       sndWin();updateUI();updateDotaUI();updateCasinoUI();updateFruitDisplay();
+      progressQuest('wheel1');
       saveGame();renderCabinet();updateWheelCooldown();
       addHistory('wheel','win',`Колесо: +${prize.value} ${prize.type==='fruit'?'🍉':(prize.type==='coins'?'🪙':'🪨')}`);
       showToast(`🎉 Выигрыш: ${prize.label}!`);
@@ -2329,6 +2769,11 @@ function farmCollect(){
   farmTick();
   if(farm.stored<=0){showToast('Склад пуст — подожди немного!',true);sndToastError();return;}
   const gained=farm.stored;fruit+=gained;farm.stored=0;farmSave();
+  window.__stats.farmCollects=(window.__stats.farmCollects||0)+1;
+  window.__stats.farmTotal=(window.__stats.farmTotal||0)+gained;
+  progressQuest('farm2');
+  checkAchievements();
+  addXP(5);
   sndWin();updateUI();updateCasinoUI();updateFruitDisplay();renderCabinet();
   addHistory('farm','win',`Ферма: +${gained} 🍉`);
   showToast(`🍉 Собрано: +${gained}!`);
@@ -2439,6 +2884,7 @@ generateShopSkins();renderAll();updateUI();updatePanels();
 renderCraftSlots();renderCraftSkins();renderDotaAll();
 updateDailyBtn();loadSkinImages();renderCabinet();updateCasinoUI();
 drawWheel();updateWheelCooldown();farmLoad();farmTick();drawRoulette();updateRouletteUI();
+loadAchievements();updateAchCounter();loadXP();updateLevelUI();
 setInterval(saveGame, 15000);
 setInterval(updateDailyBtn, 60000);
 </script>
