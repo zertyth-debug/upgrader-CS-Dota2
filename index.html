@@ -9,6 +9,51 @@
 <title>Апгрейдер CS2 + Dota 2</title>
  <link rel="icon" href="favicon.ico">
 <style>
+/* Свечение по редкости */
+@keyframes glowRarity{
+  0%,100%{box-shadow:0 0 20px var(--glow-color),0 0 40px var(--glow-color),inset 0 0 20px var(--glow-color)}
+  50%{box-shadow:0 0 40px var(--glow-color),0 0 80px var(--glow-color),0 0 120px var(--glow-color),inset 0 0 30px var(--glow-color)}
+}
+.sc2.win-glow{
+  animation:glowRarity 1s ease-in-out 3;
+  border-color:var(--glow-color)!important;
+  transform:scale(1.05);
+  z-index:10;
+}
+.sc2.win-glow::after{
+  content:'✨';
+  position:absolute;
+  top:-12px;
+  right:-12px;
+  font-size:1.8rem;
+  animation:glowRarity 1s ease-in-out 3;
+  filter:drop-shadow(0 0 10px var(--glow-color));
+  z-index:20;
+}
+
+/* Свечение карточки в магазине при покупке */
+@keyframes buyFlash{
+  0%{box-shadow:0 0 0 var(--glow-color)}
+  50%{box-shadow:0 0 60px var(--glow-color),0 0 100px var(--glow-color)}
+  100%{box-shadow:0 0 0 var(--glow-color)}
+}
+.si2.buy-flash{animation:buyFlash 1s ease-out 1}
+
+/* Свечение в крафте */
+.cs.filled.win-glow,
+.dcs.filled.win-glow{animation:glowRarity 1s ease-in-out 3}
+
+/* Свечение карточки в окне результата */
+.rc.win-glow{
+  border-color:var(--glow-color)!important;
+  box-shadow:0 0 80px var(--glow-color),0 0 160px var(--glow-color),0 20px 60px rgba(0,0,0,.5)!important;
+  transition:box-shadow .4s;
+}
+@keyframes levelUpPop{
+  0%{transform:translate(-50%,-50%) scale(.3) rotate(-10deg);opacity:0}
+  60%{transform:translate(-50%,-50%) scale(1.15) rotate(3deg);opacity:1}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}
+}
 :root{
   --yellow:#FFD700;--yellow-bright:#FFEB3B;--black:#0D0D0D;--gray:#3A3A3A;--gray-light:#888;--gray-dark:#2B2B2B;
   --green:#4CAF50;--green-bright:#00E676;--red:#F44336;--red-bright:#FF5252;--blue:#66CCFF;--blue-bright:#00BFFF;
@@ -98,6 +143,58 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .sb-backdrop{position:fixed;top:0;right:0;bottom:0;left:220px;background:rgba(10,5,25,.55);z-index:90;opacity:0;pointer-events:none;transition:opacity .3s}
 .sb-backdrop.show{opacity:1;pointer-events:auto}
 .app{flex:1;width:100%}
+/* === ВОДЯНЫЕ ЗНАКИ НА ФОНЕ === */
+.tv{position:relative;overflow:hidden}
+.tv::before,.tv::after{
+  content:'';
+  position:absolute;
+  font-family:'Segoe UI',Arial,sans-serif;
+  font-weight:900;
+  font-size:12rem;
+  color:#fff;
+  opacity:.035;
+  pointer-events:none;
+  z-index:0;
+  letter-spacing:.15em;
+  white-space:nowrap;
+  user-select:none;
+  line-height:1;
+}
+
+/* CS2 разделы */
+#upgrade-view::before,#craft-view::before{
+  content:'CS2';
+  top:10%;
+  left:-3%;
+  transform:rotate(-18deg);
+}
+#upgrade-view::after,#craft-view::after{
+  content:'CS2';
+  bottom:15%;
+  right:-5%;
+  transform:rotate(12deg);
+  font-size:9rem;
+  opacity:.025;
+}
+
+/* Dota разделы */
+#dota-view::before,#dota-craft-view::before{
+  content:'DOTA 2';
+  top:12%;
+  right:-6%;
+  transform:rotate(15deg);
+}
+#dota-view::after,#dota-craft-view::after{
+  content:'DOTA 2';
+  bottom:10%;
+  left:-8%;
+  transform:rotate(-12deg);
+  font-size:9rem;
+  opacity:.025;
+}
+
+/* Содержимое поверх водяных знаков */
+.tv > *{position:relative;z-index:1}
 .tv{display:none}
 .tv.a{display:block;animation:fadeIn .4s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -137,8 +234,8 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 @keyframes sr{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .am{position:absolute;top:50%;left:50%;width:0;height:0;z-index:4;transform:rotate(180deg);transform-origin:0 0;pointer-events:none}
 .am.arrow-spin{transition:transform 4s cubic-bezier(.35,.03,.08,1)}
-.at{position:absolute;top:-96px;left:-8px;width:0;height:0;background:none;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:18px solid var(--yellow-bright);filter:drop-shadow(0 0 10px rgba(255,235,59,.9)) drop-shadow(0 0 20px rgba(255,215,0,.5))}
-.at.rat{filter:drop-shadow(0 0 10px rgba(173,229,92,.9)) drop-shadow(0 0 20px rgba(173,229,92,.5));border-bottom-color:var(--rune-bright)}
+.at{position:absolute;top:-115px;left:-10px;width:0;height:0;background:none;border-left:10px solid transparent;border-right:10px solid transparent;border-top:22px solid var(--yellow-bright);filter:drop-shadow(0 0 10px rgba(255,235,59,.9)) drop-shadow(0 0 20px rgba(255,215,0,.5));border-radius:4px}
+.at.rat{filter:drop-shadow(0 0 10px rgba(173,229,92,.9)) drop-shadow(0 0 20px rgba(173,229,92,.5));border-top-color:var(--rune-bright)}
 .cc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .cv{color:var(--yellow-bright);font-weight:bold;font-size:1.5rem;line-height:1;transition:color .3s;text-shadow:0 0 16px rgba(255,235,59,.8)}
 .cl{color:var(--gray-light);font-size:.6rem;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
@@ -187,6 +284,12 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .sbg{position:absolute;top:4px;right:4px;background:linear-gradient(135deg, var(--yellow-bright), var(--orange));color:var(--black);font-size:.55rem;font-weight:bold;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(255,215,0,.7)}
 .sbg.cb{background:linear-gradient(135deg, var(--green-bright), var(--green))}
 .sbg.rb{background:linear-gradient(135deg, var(--rune-bright), var(--green-bright))}
+.sell-btn{position:absolute;top:4px;left:4px;background:linear-gradient(135deg,#4CAF50,#00E676);color:#fff;font-size:.7rem;font-weight:bold;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(0,230,118,.7),0 2px 6px rgba(0,0,0,.5);cursor:pointer;z-index:5;border:1.5px solid rgba(255,255,255,.3);padding:0;transition:transform .2s,box-shadow .2s;pointer-events:auto}
+.sell-btn{font-family:'Segoe UI',Arial,sans-serif;font-size:1rem;font-weight:900}
+.sell-btn:hover{transform:scale(1.2);box-shadow:0 0 16px rgba(0,230,118,1)}
+.sell-btn:active{transform:scale(.9)}
+.sell-btn.rune{background:linear-gradient(135deg,#ADE55C,#00E676);box-shadow:0 0 10px rgba(173,229,92,.7)}
+.sell-btn.rune:hover{box-shadow:0 0 16px rgba(173,229,92,1)}
 .rb2{position:absolute;bottom:0;left:0;right:0;height:3px;box-shadow:0 0 8px currentColor}
 .em{color:var(--gray-light);font-style:italic;padding:24px;text-align:center;font-size:.85rem}
 .craft-top{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
@@ -394,6 +497,11 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .casino-subtitle{text-align:center;color:#a0a0b8;font-size:.82rem;margin-bottom:16px;letter-spacing:1px}
 .casino-exchange{background:linear-gradient(135deg, rgba(255,107,157,.15), rgba(255,64,129,.1));border:2px solid rgba(255,107,157,.4);border-radius:12px;padding:14px;margin-bottom:16px}
 .casino-exchange-title{text-align:center;font-size:.82rem;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:var(--fruit);margin-bottom:10px}
+.exchange-tabs{display:flex;gap:6px;margin-bottom:12px;background:rgba(0,0,0,.3);padding:4px;border-radius:10px}
+.exchange-tab{flex:1;padding:10px;text-align:center;font-weight:bold;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:7px;color:#a0a0b8;transition:all .2s;border:none;background:transparent;font-family:inherit}
+.exchange-tab.a{background:linear-gradient(135deg,#FF6B9D,#FF4081);color:#fff;box-shadow:0 4px 16px rgba(255,107,157,.4)}
+.exchange-tab:hover:not(.a){color:#fff;background:rgba(255,255,255,.06)}
+.exchange-panel{animation:fadeIn .3s ease}
 .exchange-buttons{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .exchange-btn{padding:12px 8px;background:linear-gradient(135deg, rgba(60,50,90,.6), rgba(40,30,70,.6));border:2px solid rgba(255,107,157,.3);border-radius:10px;color:#fff;font-weight:bold;font-size:.78rem;cursor:pointer;transition:all .2s;font-family:inherit;text-align:center;line-height:1.3}
 .exchange-btn:hover:not(:disabled){border-color:var(--fruit);transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,157,.3)}
@@ -401,6 +509,15 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .exchange-btn .cost{color:#FFEB3B;font-size:.7rem}
 .exchange-btn .gain{color:var(--fruit);font-size:.9rem;font-weight:bold}
 .exchange-btn .bonus{color:#00E676;font-size:.65rem}
+.exchange-btn.out{border-color:rgba(255,215,0,.3)}
+.exchange-btn.out:hover:not(:disabled){border-color:#FFEB3B;box-shadow:0 6px 20px rgba(255,215,0,.3)}
+.exchange-btn.out .gain{color:#FFEB3B}
+.exchange-btn.out .cost{color:#FF6B9D}
+.exchange-btn.out .bonus{color:#FF5252}
+.exchange-btn.out.rune{border-color:rgba(173,229,92,.3)}
+.exchange-btn.out.rune:hover:not(:disabled){border-color:var(--rune-bright);box-shadow:0 6px 20px rgba(173,229,92,.3)}
+.exchange-btn.out.rune .gain{color:var(--rune-bright)}
+.exchange-btn.out.rune .bonus{color:#00E676}
 .slots-window{background:linear-gradient(180deg, #0a0a1a, #1a1030);border:3px solid #333;border-radius:18px;padding:20px;margin-bottom:20px;box-shadow:inset 0 0 40px rgba(0,0,0,.9), 0 0 20px rgba(255,215,0,.15);position:relative;overflow:hidden}
 .slots-window::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, transparent 0%, transparent 40%, rgba(255,255,255,.03) 50%, transparent 60%, transparent 100%);pointer-events:none}
 .slots-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
@@ -449,7 +566,6 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .casino-coin{position:fixed;font-size:2rem;pointer-events:none;z-index:999;animation:coinDrop 1.5s ease-out forwards}
 @keyframes coinDrop{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
 @media(max-width:780px){
-@media(max-width:780px){
   body{padding:8px;font-size:15px}
   .aw{flex-direction:column}
   .sn{flex-direction:column;gap:8px;flex-wrap:nowrap;justify-content:flex-start;width:100%}
@@ -466,7 +582,7 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
   .sp{width:140px;height:200px}
   .spi{width:90px;height:70px}
   .uc{width:180px;height:180px}
-  .at{top:-82px;left:-7px;border-left-width:7px;border-right-width:7px;border-bottom-width:15px}
+  .at{top:-100px;left:-8px;border-left-width:8px;border-right-width:8px;border-top-width:17px}
   .gw{grid-template-columns:1fr}
   .sg{grid-template-columns:repeat(auto-fill,minmax(75px,1fr))}
   .sg2{grid-template-columns:repeat(auto-fill,minmax(115px,1fr))}
@@ -519,6 +635,8 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
   .stg{width:40px;height:40px;font-size:1.1rem;top:10px;right:10px}
   .hitem{padding:8px 10px;font-size:.72rem;gap:8px}
   .hitem .htype{min-width:55px;font-size:.6rem;padding:2px 5px}
+  .tv::before{font-size:6rem}
+  .tv::after{font-size:5rem;opacity:.0.2}
 }
 @media(max-width:380px){
   .slot-reel{height:80px;font-size:2.8rem}
@@ -623,6 +741,7 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
         <div class="user-avatar" id="user-avatar">?</div>
         <div class="user-login" id="user-login">Гость</div>
         <div class="user-email" id="user-email">—</div>
+        <div id="user-title" style="font-size:.65rem;margin-top:3px;font-weight:bold;text-align:center"></div>
         <button class="user-logout" onclick="event.stopPropagation();doLogout()" id="user-logout-btn" style="display:none">Выйти</button>
       </div>
       <div class="level-card" style="background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,.25);position:relative;overflow:hidden">
@@ -632,6 +751,7 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
     <div id="level-bar-fill" style="height:100%;background:linear-gradient(90deg,#FFD700,#FF9800);width:0%;transition:width .5s;box-shadow:0 0 8px rgba(255,215,0,.7)"></div>
   </div>
   <div id="level-text" style="font-size:.6rem;color:#a0a0b8;text-align:center;margin-top:4px">0 / 100 XP</div>
+  <div id="level-next" style="font-size:.55rem;color:#8080a0;text-align:center;margin-top:2px"></div>
 </div>
       <button class="nb daily" onclick="claimDaily()" id="daily-btn"><span class="ni">🎁</span><span class="nt">Бонус</span></button>
       <button class="nb shop" onclick="openShop()"><span class="ni">🛒</span><span class="nt">Магазин</span></button>
@@ -772,29 +892,69 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
         <div class="casino-title">🍉 Lucky Fruits 🍉</div>
         <div class="casino-subtitle">Собери три одинаковых — выиграй x50!</div>
         <div class="casino-exchange">
-          <div class="casino-exchange-title">💱 Обменять монеты на 🍉</div>
-          <div class="exchange-buttons">
-            <button class="exchange-btn" onclick="exchangeCoins(100,100)">
-              <div class="gain">+100 🍉</div>
-              <div class="cost">за 100 🪙</div>
-            </button>
-            <button class="exchange-btn" onclick="exchangeCoins(500,550)">
-              <div class="gain">+550 🍉</div>
-              <div class="cost">за 500 🪙</div>
-              <div class="bonus">+10% бонус</div>
-            </button>
-            <button class="exchange-btn" onclick="exchangeCoins(1000,1200)">
-              <div class="gain">+1200 🍉</div>
-              <div class="cost">за 1000 🪙</div>
-              <div class="bonus">+20% бонус</div>
-            </button>
-            <button class="exchange-btn" onclick="exchangeCoins(5000,6500)">
-              <div class="gain">+6500 🍉</div>
-              <div class="cost">за 5000 🪙</div>
-              <div class="bonus">+30% бонус</div>
-            </button>
-          </div>
-        </div>
+  <div class="exchange-tabs">
+    <button class="exchange-tab a" id="ex-tab-in" onclick="switchExchangeTab('in')">🪙 → 🍉</button>
+    <button class="exchange-tab" id="ex-tab-out" onclick="switchExchangeTab('out')">🍉 → 🪙🪨</button>
+  </div>
+  <div id="exchange-in" class="exchange-panel">
+    <div class="casino-exchange-title">💱 Купить фруктики</div>
+    <div class="exchange-buttons">
+      <button class="exchange-btn" onclick="exchangeCoins(100,100)">
+        <div class="gain">+100 🍉</div>
+        <div class="cost">за 100 🪙</div>
+      </button>
+      <button class="exchange-btn" onclick="exchangeCoins(500,550)">
+        <div class="gain">+550 🍉</div>
+        <div class="cost">за 500 🪙</div>
+        <div class="bonus">+10% бонус</div>
+      </button>
+      <button class="exchange-btn" onclick="exchangeCoins(1000,1200)">
+        <div class="gain">+1200 🍉</div>
+        <div class="cost">за 1000 🪙</div>
+        <div class="bonus">+20% бонус</div>
+      </button>
+      <button class="exchange-btn" onclick="exchangeCoins(5000,6500)">
+        <div class="gain">+6500 🍉</div>
+        <div class="cost">за 5000 🪙</div>
+        <div class="bonus">+30% бонус</div>
+      </button>
+    </div>
+  </div>
+  <div id="exchange-out" class="exchange-panel" style="display:none">
+    <div class="casino-exchange-title">💱 Продать фруктики</div>
+    <div class="exchange-buttons">
+      <button class="exchange-btn out" onclick="exchangeFruitToCoins(100)">
+        <div class="gain">+90 🪙</div>
+        <div class="cost">за 100 🍉</div>
+        <div class="bonus">-10% налог</div>
+      </button>
+      <button class="exchange-btn out" onclick="exchangeFruitToCoins(500)">
+        <div class="gain">+450 🪙</div>
+        <div class="cost">за 500 🍉</div>
+        <div class="bonus">-10% налог</div>
+      </button>
+      <button class="exchange-btn out" onclick="exchangeFruitToCoins(1000)">
+        <div class="gain">+950 🪙</div>
+        <div class="cost">за 1000 🍉</div>
+        <div class="bonus">-5% налог</div>
+      </button>
+      <button class="exchange-btn out rune" onclick="exchangeFruitToRunes(100,100)">
+        <div class="gain">+100 🪨</div>
+        <div class="cost">за 100 🍉</div>
+      </button>
+      <button class="exchange-btn out rune" onclick="exchangeFruitToRunes(500,550)">
+        <div class="gain">+550 🪨</div>
+        <div class="cost">за 500 🍉</div>
+        <div class="bonus">+10% бонус</div>
+      </button>
+      <button class="exchange-btn out rune" onclick="exchangeFruitToRunes(1000,1200)">
+        <div class="gain">+1200 🪨</div>
+        <div class="cost">за 1000 🍉</div>
+        <div class="bonus">+20% бонус</div>
+      </button>
+    </div>
+  </div>
+</div>
         <div class="slots-window">
           <div class="slots-row">
             <div class="slot-reel" id="slot-1"><span class="slot-symbol">🍒</span></div>
@@ -1226,6 +1386,7 @@ function renderCabinet(){
       <div class="cab-card">
         <div class="cab-avatar">${currentUser.login.charAt(0).toUpperCase()}</div>
         <div class="cab-name">${currentUser.login}</div>
+        ${(()=>{const l=getLevel();const colorStyle=l.color==='rainbow'?'background:linear-gradient(90deg,#FF4081,#FFD700,#00E676,#00E5FF,#BA68C8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;':`color:${l.color};`;return `<div style="text-align:center;margin-top:6px;font-size:1rem;font-weight:bold;${colorStyle}">${l.icon} ${l.title} <span style="color:#a0a0b8;font-size:.7rem">(Ур. ${l.lvl})</span></div>`;})()}
         <div class="cab-email">${currentUser.email}</div>
         <div class="cab-info-row"><span class="cab-info-label">📅 Регистрация</span><span class="cab-info-value">${createdDate}</span></div>
         <div class="cab-info-row"><span class="cab-info-label">⏱️ С нами</span><span class="cab-info-value cyan">${regDays} ${regDays===1?'день':(regDays<5?'дня':'дней')}</span></div>
@@ -1349,11 +1510,169 @@ document.body.addEventListener('touchstart',function initAudioMobile(){initAudio
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&audioCtx&&audioCtx.state==='suspended')audioCtx.resume();});
 
 const SVG_ICONS={rifle:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M2 8 L4 6 L14 6 L16 8 L26 8 L28 6 L34 6 L36 8 L40 8 L42 10 L50 10 L52 8 L58 8 L60 10 L62 10 L62 14 L56 14 L54 12 L42 12 L40 14 L36 14 L36 20 L34 20 L34 14 L16 14 L14 16 L8 16 L6 14 L2 14 Z" fill="#555" stroke="#777" stroke-width=".5"/><circle cx="10" cy="11" r="1.5" fill="#888"/><rect x="20" y="3" width="8" height="3" rx="1" fill="#555"/><rect x="44" y="3" width="4" height="4" rx="1" fill="#333"/></svg>',sniper:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M2 10 L4 8 L8 8 L10 10 L16 10 L16 7 L48 7 L48 10 L52 10 L54 12 L60 12 L62 14 L62 16 L56 16 L54 14 L48 14 L48 17 L40 17 L40 14 L12 14 L10 16 L6 16 L4 14 L2 14 Z" fill="#555" stroke="#777" stroke-width=".5"/><rect x="20" y="3" width="24" height="3" rx="1.5" fill="#444"/><rect x="24" y="2" width="16" height="2" rx="1" fill="#666"/><circle cx="32" cy="11" r="2" fill="#888"/><rect x="32" y="17" width="3" height="5" fill="#333"/></svg>',knife:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M4 12 L6 10 L20 6 L30 6 L34 10 L34 14 L30 18 L20 18 L6 14 Z" fill="#555" stroke="#777" stroke-width=".5"/><path d="M34 12 L40 10 L56 10 L60 12 L56 14 L40 14 Z" fill="#888" stroke="#aaa" stroke-width=".5"/><rect x="56" y="11" width="4" height="2" rx="1" fill="#666"/><circle cx="44" cy="12" r="1" fill="#333"/><circle cx="50" cy="12" r="1" fill="#333"/></svg>',pistol:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M4 10 L8 8 L30 8 L32 10 L36 10 L36 14 L30 14 L28 18 L22 18 L20 14 L14 14 L12 16 L8 16 L6 14 L4 14 Z" fill="#555" stroke="#777" stroke-width=".5"/><rect x="38" y="9" width="6" height="6" rx="1" fill="#333"/><rect x="44" y="10" width="16" height="4" rx="1" fill="#444"/><circle cx="52" cy="12" r="1.5" fill="#666"/></svg>',smg:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M2 8 L6 6 L20 6 L22 8 L28 8 L30 10 L36 10 L38 8 L46 8 L48 10 L52 10 L54 12 L56 12 L56 16 L50 16 L48 14 L36 14 L34 16 L30 16 L30 14 L8 14 L6 12 L2 12 Z" fill="#555" stroke="#777" stroke-width=".5"/><rect x="32" y="16" width="4" height="6" rx="1" fill="#333"/><circle cx="14" cy="10" r="1" fill="#666"/><rect x="10" y="3" width="6" height="3" rx="1" fill="#444"/></svg>',shotgun:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M2 8 L6 6 L26 6 L28 8 L34 8 L36 10 L52 10 L54 8 L60 8 L62 10 L62 14 L54 14 L52 12 L36 12 L34 14 L28 14 L26 12 L6 12 L2 12 Z" fill="#555" stroke="#777" stroke-width=".5"/><rect x="14" y="14" width="6" height="6" rx="1" fill="#333"/><rect x="32" y="14" width="4" height="6" rx="1" fill="#333"/><rect x="40" y="3" width="8" height="2" rx="1" fill="#444"/></svg>',mg:'<svg viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" class="fsvg"><path d="M2 9 L4 7 L8 7 L10 9 L20 9 L22 7 L30 7 L32 9 L40 9 L42 11 L48 11 L50 9 L58 9 L60 11 L62 11 L62 15 L56 15 L54 13 L42 13 L40 15 L36 15 L36 21 L34 21 L34 15 L16 15 L14 17 L8 17 L6 15 L2 15 Z" fill="#555" stroke="#777" stroke-width=".5"/><circle cx="10" cy="12" r="1.5" fill="#888"/><rect x="24" y="3" width="12" height="3" rx="1" fill="#555"/><rect x="44" y="3" width="6" height="4" rx="1" fill="#333"/><rect x="20" y="17" width="8" height="5" rx="1" fill="#444"/></svg>'};
-function getIconForBase(b){b=b.toLowerCase();if(b.includes('awp')||b.includes('ssg')||b.includes('gungnir')||b.includes('medusa')||b.includes('dragon lore')||b.includes('lightning')||b.includes('worm god')||b.includes('safari')||b.includes('on tai')||b.includes('desert hydra')||b.includes('electric')||b.includes('snake skin')||b.includes('containment')||b.includes('chromatic')||b.includes('blood in the water')||b.includes('dragonfire')||b.includes('wildfire')||b.includes('atheris'))return SVG_ICONS.sniper;if(b.includes('karambit')||b.includes('butterfly')||b.includes('bayonet')||b.includes('m9 bayonet')||b.includes('talon')||b.includes('skeleton')||b.includes('stiletto')||b.includes('ursus')||b.includes('navaja')||b.includes('knife')||b.includes('daggers'))return SVG_ICONS.knife;if(b.includes('glock')||b.includes('usp')||b.includes('deagle')||b.includes('desert eagle')||b.includes('p250')||b.includes('p2000')||b.includes('tec-9')||b.includes('tec9')||b.includes('cz75')||b.includes('five-seven')||b.includes('fiveseven')||b.includes('dual berettas')||b.includes('r8'))return SVG_ICONS.pistol;if(b.includes('mp9')||b.includes('mp7')||b.includes('mp5')||b.includes('mac-10')||b.includes('mac10')||b.includes('p90')||b.includes('ump')||b.includes('pp-bizon')||b.includes('bizon'))return SVG_ICONS.smg;if(b.includes('nova')||b.includes('xm1014')||b.includes('sawed')||b.includes('mag-7')||b.includes('mag7'))return SVG_ICONS.shotgun;if(b.includes('negev')||b.includes('m249'))return SVG_ICONS.mg;return SVG_ICONS.rifle}
-const ALL_SKIN_POOL=[{base:'Glock-18 | Candy Apple',wear:'Factory New',price:50,type:'pistol'},{base:'AWP | Atheris',wear:'Field-Tested',price:100,type:'sniper'},{base:'P250 | Sand Dune',wear:'Factory New',price:60,type:'pistol'},{base:'MP9 | Storm',wear:'Factory New',price:70,type:'smg'},{base:'Nova | Predator',wear:'Field-Tested',price:80,type:'shotgun'},{base:'AK-47 | Redline',wear:'Field-Tested',price:150,type:'rifle'},{base:'M4A1-S | Boreal Forest',wear:'Field-Tested',price:120,type:'rifle'},{base:'Galil AR | Kami',wear:'Field-Tested',price:110,type:'rifle'},{base:'UMP-45 | Primal Saber',wear:'Field-Tested',price:130,type:'smg'},{base:'AK-47 | Slate',wear:'Field-Tested',price:200,type:'rifle'},{base:'FAMAS | Roll Cage',wear:'Minimal Wear',price:180,type:'rifle'},{base:'P2000 | Imperial Dragon',wear:'Field-Tested',price:160,type:'pistol'},{base:'MP9 | Sand Dashed',wear:'Field-Tested',price:300,type:'smg'},{base:'SG 553 | Cyrex',wear:'Field-Tested',price:280,type:'rifle'},{base:'Five-SeveN | Monkey Business',wear:'Field-Tested',price:250,type:'pistol'},{base:'P90 | Death by Kitty',wear:'Field-Tested',price:220,type:'smg'},{base:'P250 | Cassette',wear:'Minimal Wear',price:400,type:'pistol'},{base:'MAC-10 | Neon Rider',wear:'Field-Tested',price:380,type:'smg'},{base:'Glock-18 | Water Elemental',wear:'Field-Tested',price:350,type:'pistol'},{base:'Tec-9 | Nuclear Threat',wear:'Field-Tested',price:320,type:'pistol'},{base:'AK-47 | Asiimov',wear:'Field-Tested',price:500,type:'rifle'},{base:'M4A4 | Asiimov',wear:'Field-Tested',price:600,type:'rifle'},{base:'P90 | Asiimov',wear:'Field-Tested',price:450,type:'smg'},{base:'SSG 08 | Asiimov',wear:'Field-Tested',price:420,type:'sniper'},{base:'Glock-18 | Neo-Noir',wear:'Field-Tested',price:480,type:'pistol'},{base:'AWP | Asiimov',wear:'Field-Tested',price:800,type:'sniper'},{base:'M4A1-S | Hyper Beast',wear:'Field-Tested',price:900,type:'rifle'},{base:'P250 | Asiimov',wear:'Field-Tested',price:550,type:'pistol'},{base:'AUG | Akihabara Accept',wear:'Field-Tested',price:700,type:'rifle'},{base:'Galil AR | Eco',wear:'Field-Tested',price:650,type:'rifle'},{base:'Desert Eagle | Blaze',wear:'Factory New',price:1000,type:'pistol'},{base:'M4A4 | Desolate Space',wear:'Field-Tested',price:1200,type:'rifle'},{base:'USP-S | Kill Confirmed',wear:'Field-Tested',price:1300,type:'pistol'},{base:'CZ75-Auto | Victoria',wear:'Minimal Wear',price:1100,type:'pistol'},{base:'M4A1-S | Mecha Industries',wear:'Field-Tested',price:1400,type:'rifle'},{base:'P90 | Freight',wear:'Field-Tested',price:750,type:'smg'},{base:'FAMAS | Commemoration',wear:'Field-Tested',price:850,type:'rifle'},{base:'Sawed-Off | The Kraken',wear:'Field-Tested',price:950,type:'shotgun'},{base:'Glock-18 | Fade',wear:'Factory New',price:1800,type:'pistol'},{base:'AK-47 | Bloodsport',wear:'Field-Tested',price:2000,type:'rifle'},{base:"M4A1-S | Chantico's Fire",wear:'Field-Tested',price:1700,type:'rifle'},{base:'P2000 | Fire Elemental',wear:'Field-Tested',price:1600,type:'pistol'},{base:'Desert Eagle | Code Red',wear:'Field-Tested',price:1900,type:'pistol'},{base:'AK-47 | Neon Rider',wear:'Field-Tested',price:2500,type:'rifle'},{base:'M4A4 | Neo-Noir',wear:'Field-Tested',price:2400,type:'rifle'},{base:'SG 553 | Integrale',wear:'Field-Tested',price:2200,type:'rifle'},{base:'MP5-SD | Phosphor',wear:'Factory New',price:2300,type:'smg'},{base:'AK-47 | The Empress',wear:'Field-Tested',price:3000,type:'rifle'},{base:'M4A1-S | Printstream',wear:'Field-Tested',price:3500,type:'rifle'},{base:'Glock-18 | Gamma Doppler',wear:'Factory New',price:2800,type:'pistol'},{base:'USP-S | Printstream',wear:'Field-Tested',price:3200,type:'pistol'},{base:'AWP | Chromatic Aberration',wear:'Field-Tested',price:2900,type:'sniper'},{base:'AK-47 | Vulcan',wear:'Field-Tested',price:4000,type:'rifle'},{base:'M4A4 | Poseidon',wear:'Field-Tested',price:3800,type:'rifle'},{base:'AWP | Hyper Beast',wear:'Field-Tested',price:3600,type:'sniper'},{base:'P250 | Asiimov',wear:'Field-Tested',price:3300,type:'pistol'},{base:'MP7 | Bloodsport',wear:'Field-Tested',price:3400,type:'smg'},{base:'AK-47 | Fire Serpent',wear:'Field-Tested',price:8000,type:'rifle'},{base:'AWP | Lightning Strike',wear:'Factory New',price:6000,type:'sniper'},{base:'M4A4 | Howl',wear:'Field-Tested',price:40000,type:'rifle'},{base:'AWP | Medusa',wear:'Field-Tested',price:30000,type:'sniper'},{base:'Karambit | Doppler',wear:'Factory New',price:10000,type:'knife',star:true},{base:'Karambit | Fade',wear:'Factory New',price:12000,type:'knife',star:true},{base:'Butterfly Knife | Fade',wear:'Factory New',price:15000,type:'knife',star:true},{base:'Bayonet | Doppler',wear:'Factory New',price:9000,type:'knife',star:true},{base:'AWP | Gungnir',wear:'Field-Tested',price:20000,type:'sniper'},{base:'AK-47 | Wild Lotus',wear:'Field-Tested',price:50000,type:'rifle'},{base:'AWP | Dragon Lore',wear:'Field-Tested',price:75000,type:'sniper'},{base:'M4A4 | The Emperor',wear:'Field-Tested',price:7000,type:'rifle'},{base:'AWP | Fade',wear:'Factory New',price:5000,type:'sniper'},{base:'MP9 | Starlight Protector',wear:'Factory New',price:3700,type:'smg'},{base:'USP-S | The Orofacial',wear:'Field-Tested',price:4200,type:'pistol'},{base:'AK-47 | Rat Rod',wear:'Field-Tested',price:5500,type:'rifle'},{base:'Desert Eagle | Blaze',wear:'Factory New',price:5200,type:'pistol'},{base:'M4A4 | Hellfire',wear:'Field-Tested',price:3500,type:'rifle'},{base:'AK-47 | Ice Coaled',wear:'Field-Tested',price:35000,type:'rifle'},{base:'M4A4 | Spider Lily',wear:'Field-Tested',price:27000,type:'rifle'},{base:'AWP | Worm God',wear:'Field-Tested',price:2200,type:'sniper'},{base:'Glock-18 | Sand Dune',wear:'Field-Tested',price:30,type:'pistol'},{base:'AWP | Safari Mesh',wear:'Factory New',price:1500,type:'sniper'},{base:'Glock-18 | Bunsen Burner',wear:'Factory New',price:15,type:'pistol'},{base:'Negev | Nuclear Threat',wear:'Factory New',price:20,type:'mg'},{base:'M249 | Gator Mesh',wear:'Factory New',price:42,type:'mg'},{base:'Galil AR | Hunting Blind',wear:'Field-Tested',price:45,type:'rifle'}];
-const RARITY_TIERS=[{name:'Базовый',min:0,max:100,color:'#b0c3d9'},{name:'Армейский',min:100,max:500,color:'#5e98d9'},{name:'Запрещённый',min:500,max:2000,color:'#8847ff'},{name:'Засекреченный',min:2000,max:8000,color:'#d32ce6'},{name:'Тайный',min:8000,max:20000,color:'#eb4b4b'},{name:'★ Нож',min:20000,max:Infinity,color:'#e4ae39'}];
+function getIconForBase(b){b=b.toLowerCase();if(b.includes('glove')||b.includes('wraps')||b.includes('hand wrap'))return SVG_ICONS.knife;if(b.includes('awp')||b.includes('ssg')||b.includes('gungnir')||b.includes('medusa')||b.includes('dragon lore')||b.includes('lightning')||b.includes('worm god')||b.includes('safari')||b.includes('on tai')||b.includes('desert hydra')||b.includes('electric')||b.includes('snake skin')||b.includes('containment')||b.includes('chromatic')||b.includes('blood in the water')||b.includes('dragonfire')||b.includes('wildfire')||b.includes('atheris'))return SVG_ICONS.sniper;if(b.includes('karambit')||b.includes('butterfly')||b.includes('bayonet')||b.includes('m9 bayonet')||b.includes('talon')||b.includes('skeleton')||b.includes('stiletto')||b.includes('ursus')||b.includes('navaja')||b.includes('knife')||b.includes('daggers'))return SVG_ICONS.knife;if(b.includes('glock')||b.includes('usp')||b.includes('deagle')||b.includes('desert eagle')||b.includes('p250')||b.includes('p2000')||b.includes('tec-9')||b.includes('tec9')||b.includes('cz75')||b.includes('five-seven')||b.includes('fiveseven')||b.includes('dual berettas')||b.includes('r8'))return SVG_ICONS.pistol;if(b.includes('mp9')||b.includes('mp7')||b.includes('mp5')||b.includes('mac-10')||b.includes('mac10')||b.includes('p90')||b.includes('ump')||b.includes('pp-bizon')||b.includes('bizon'))return SVG_ICONS.smg;if(b.includes('nova')||b.includes('xm1014')||b.includes('sawed')||b.includes('mag-7')||b.includes('mag7'))return SVG_ICONS.shotgun;if(b.includes('negev')||b.includes('m249'))return SVG_ICONS.mg;return SVG_ICONS.rifle}
+const ALL_SKIN_POOL=[
+// ===== ПИСТОЛЕТЫ / SMG / ДРОБОВИКИ (базовые) =====
+{base:'Glock-18 | Candy Apple',wear:'Factory New',price:50,type:'pistol'},
+{base:'P250 | Sand Dune',wear:'Factory New',price:60,type:'pistol'},
+{base:'MP9 | Storm',wear:'Factory New',price:70,type:'smg'},
+{base:'Nova | Predator',wear:'Field-Tested',price:80,type:'shotgun'},
+{base:'AWP | Atheris',wear:'Field-Tested',price:100,type:'sniper'},
+{base:'Galil AR | Kami',wear:'Field-Tested',price:110,type:'rifle'},
+{base:'M4A1-S | Boreal Forest',wear:'Field-Tested',price:120,type:'rifle'},
+{base:'UMP-45 | Primal Saber',wear:'Field-Tested',price:130,type:'smg'},
+{base:'AK-47 | Redline',wear:'Field-Tested',price:150,type:'rifle'},
+{base:'P2000 | Imperial Dragon',wear:'Field-Tested',price:160,type:'pistol'},
+{base:'FAMAS | Roll Cage',wear:'Minimal Wear',price:180,type:'rifle'},
+{base:'AK-47 | Slate',wear:'Field-Tested',price:200,type:'rifle'},
+{base:'P90 | Death by Kitty',wear:'Field-Tested',price:220,type:'smg'},
+{base:'Five-SeveN | Monkey Business',wear:'Field-Tested',price:250,type:'pistol'},
+{base:'SG 553 | Cyrex',wear:'Field-Tested',price:280,type:'rifle'},
+{base:'MP9 | Sand Dashed',wear:'Field-Tested',price:300,type:'smg'},
+{base:'Tec-9 | Nuclear Threat',wear:'Field-Tested',price:320,type:'pistol'},
+{base:'Glock-18 | Water Elemental',wear:'Field-Tested',price:350,type:'pistol'},
+{base:'MAC-10 | Neon Rider',wear:'Field-Tested',price:380,type:'smg'},
+{base:'P250 | Cassette',wear:'Minimal Wear',price:400,type:'pistol'},
+{base:'SSG 08 | Asiimov',wear:'Field-Tested',price:420,type:'sniper'},
+{base:'P90 | Asiimov',wear:'Field-Tested',price:450,type:'smg'},
+{base:'Glock-18 | Neo-Noir',wear:'Field-Tested',price:480,type:'pistol'},
+{base:'AK-47 | Asiimov',wear:'Field-Tested',price:500,type:'rifle'},
+{base:'P250 | Asiimov',wear:'Field-Tested',price:550,type:'pistol'},
+{base:'M4A4 | Asiimov',wear:'Field-Tested',price:600,type:'rifle'},
+{base:'Galil AR | Eco',wear:'Field-Tested',price:650,type:'rifle'},
+{base:'AUG | Akihabara Accept',wear:'Field-Tested',price:700,type:'rifle'},
+{base:'P90 | Freight',wear:'Field-Tested',price:750,type:'smg'},
+{base:'AWP | Asiimov',wear:'Field-Tested',price:800,type:'sniper'},
+{base:'FAMAS | Commemoration',wear:'Field-Tested',price:850,type:'rifle'},
+{base:'M4A1-S | Hyper Beast',wear:'Field-Tested',price:900,type:'rifle'},
+{base:'Sawed-Off | The Kraken',wear:'Field-Tested',price:950,type:'shotgun'},
+{base:'Desert Eagle | Blaze',wear:'Factory New',price:1000,type:'pistol'},
+{base:'CZ75-Auto | Victoria',wear:'Minimal Wear',price:1100,type:'pistol'},
+{base:'M4A4 | Desolate Space',wear:'Field-Tested',price:1200,type:'rifle'},
+{base:'USP-S | Kill Confirmed',wear:'Field-Tested',price:1300,type:'pistol'},
+{base:'M4A1-S | Mecha Industries',wear:'Field-Tested',price:1400,type:'rifle'},
+{base:'AWP | Safari Mesh',wear:'Factory New',price:1500,type:'sniper'},
+{base:'P2000 | Fire Elemental',wear:'Field-Tested',price:1600,type:'pistol'},
+{base:"M4A1-S | Chantico's Fire",wear:'Field-Tested',price:1700,type:'rifle'},
+{base:'Glock-18 | Fade',wear:'Factory New',price:1800,type:'pistol'},
+{base:'Desert Eagle | Code Red',wear:'Field-Tested',price:1900,type:'pistol'},
+{base:'AK-47 | Bloodsport',wear:'Field-Tested',price:2000,type:'rifle'},
+{base:'SG 553 | Integrale',wear:'Field-Tested',price:2200,type:'rifle'},
+{base:'MP5-SD | Phosphor',wear:'Factory New',price:2300,type:'smg'},
+{base:'M4A4 | Neo-Noir',wear:'Field-Tested',price:2400,type:'rifle'},
+{base:'AK-47 | Neon Rider',wear:'Field-Tested',price:2500,type:'rifle'},
+{base:'Glock-18 | Gamma Doppler',wear:'Factory New',price:2800,type:'pistol'},
+{base:'AWP | Chromatic Aberration',wear:'Field-Tested',price:2900,type:'sniper'},
+{base:'AK-47 | The Empress',wear:'Field-Tested',price:3000,type:'rifle'},
+{base:'USP-S | Printstream',wear:'Field-Tested',price:3200,type:'pistol'},
+{base:'P250 | Asiimov',wear:'Field-Tested',price:3300,type:'pistol'},
+{base:'MP7 | Bloodsport',wear:'Field-Tested',price:3400,type:'smg'},
+{base:'M4A1-S | Printstream',wear:'Field-Tested',price:3500,type:'rifle'},
+{base:'M4A4 | Hellfire',wear:'Field-Tested',price:3500,type:'rifle'},
+{base:'AWP | Hyper Beast',wear:'Field-Tested',price:3600,type:'sniper'},
+{base:'MP9 | Starlight Protector',wear:'Factory New',price:3700,type:'smg'},
+{base:'M4A4 | Poseidon',wear:'Field-Tested',price:3800,type:'rifle'},
+{base:'AK-47 | Vulcan',wear:'Field-Tested',price:4000,type:'rifle'},
+{base:'USP-S | The Orofacial',wear:'Field-Tested',price:4200,type:'pistol'},
+{base:'AWP | Fade',wear:'Factory New',price:5000,type:'sniper'},
+{base:'Desert Eagle | Blaze',wear:'Factory New',price:5200,type:'pistol'},
+{base:'AK-47 | Rat Rod',wear:'Field-Tested',price:5500,type:'rifle'},
+{base:'AWP | Lightning Strike',wear:'Factory New',price:6000,type:'sniper'},
+{base:'M4A4 | The Emperor',wear:'Field-Tested',price:7000,type:'rifle'},
+{base:'AK-47 | Fire Serpent',wear:'Field-Tested',price:8000,type:'rifle'},
+
+// ===== НОЖИ (базовые) =====
+{base:'★ Bayonet | Doppler',wear:'Factory New',price:9000,type:'knife',star:true},
+{base:'★ Karambit | Doppler',wear:'Factory New',price:10000,type:'knife',star:true},
+{base:'★ Karambit | Fade',wear:'Factory New',price:12000,type:'knife',star:true},
+{base:'★ Butterfly Knife | Fade',wear:'Factory New',price:15000,type:'knife',star:true},
+
+// ===== ТОПОВЫЕ AWP/AK =====
+{base:'AWP | Gungnir',wear:'Field-Tested',price:20000,type:'sniper'},
+{base:'M4A4 | Spider Lily',wear:'Field-Tested',price:27000,type:'rifle'},
+{base:'AWP | Medusa',wear:'Field-Tested',price:30000,type:'sniper'},
+{base:'AK-47 | Ice Coaled',wear:'Field-Tested',price:35000,type:'rifle'},
+{base:'M4A4 | Howl',wear:'Field-Tested',price:40000,type:'rifle'},
+{base:'AK-47 | Wild Lotus',wear:'Field-Tested',price:50000,type:'rifle'},
+{base:'AWP | Dragon Lore',wear:'Field-Tested',price:75000,type:'sniper'},
+
+// ===== НОЖИ (премиум) =====
+{base:'★ M9 Bayonet | Doppler',wear:'Factory New',price:12000,type:'knife',star:true},
+{base:'★ M9 Bayonet | Fade',wear:'Factory New',price:14000,type:'knife',star:true},
+{base:'★ Karambit | Case Hardened',wear:'Factory New',price:18000,type:'knife',star:true},
+{base:'★ Karambit | Crimson Web',wear:'Factory New',price:22000,type:'knife',star:true},
+{base:'★ Butterfly Knife | Doppler',wear:'Factory New',price:25000,type:'knife',star:true},
+{base:'★ Butterfly Knife | Black Pearl',wear:'Factory New',price:35000,type:'knife',star:true},
+{base:'★ Talon Knife | Fade',wear:'Factory New',price:28000,type:'knife',star:true},
+{base:'★ Talon Knife | Doppler',wear:'Factory New',price:30000,type:'knife',star:true},
+{base:'★ Skeleton Knife | Fade',wear:'Factory New',price:32000,type:'knife',star:true},
+{base:'★ Skeleton Knife | Black Pearl',wear:'Factory New',price:40000,type:'knife',star:true},
+{base:'★ Stiletto Knife | Doppler',wear:'Factory New',price:15000,type:'knife',star:true},
+{base:'★ Ursus Knife | Fade',wear:'Factory New',price:16000,type:'knife',star:true},
+{base:'★ Navaja Knife | Case Hardened',wear:'Factory New',price:8000,type:'knife',star:true},
+{base:'★ Nomad Knife | Case Hardened',wear:'Factory New',price:14000,type:'knife',star:true},
+{base:'★ Paracord Knife | Fade',wear:'Factory New',price:11000,type:'knife',star:true},
+{base:'★ Survival Knife | Crimson Web',wear:'Factory New',price:13000,type:'knife',star:true},
+{base:'★ Classic Knife | Fade',wear:'Factory New',price:17000,type:'knife',star:true},
+{base:'★ Kukri Knife | Fade',wear:'Factory New',price:19000,type:'knife',star:true},
+
+// ===== ПЕРЧАТКИ (все модели) =====
+{base:'★ Bloodhound Gloves | Snakebite',wear:'Field-Tested',price:9000,type:'glove',star:true},
+{base:'★ Bloodhound Gloves | Charred',wear:'Field-Tested',price:11000,type:'glove',star:true},
+{base:'★ Bloodhound Gloves | Bronzed',wear:'Field-Tested',price:13000,type:'glove',star:true},
+{base:'★ Sport Gloves | Amphibious',wear:'Field-Tested',price:12000,type:'glove',star:true},
+{base:'★ Sport Gloves | Vice',wear:'Field-Tested',price:18000,type:'glove',star:true},
+{base:'★ Sport Gloves | Pandora Box',wear:'Field-Tested',price:25000,type:'glove',star:true},
+{base:'★ Sport Gloves | Hedge Maze',wear:'Field-Tested',price:28000,type:'glove',star:true},
+{base:'★ Specialist Gloves | Crimson Kimono',wear:'Field-Tested',price:15000,type:'glove',star:true},
+{base:'★ Specialist Gloves | Emerald Web',wear:'Field-Tested',price:22000,type:'glove',star:true},
+{base:'★ Specialist Gloves | Fade',wear:'Field-Tested',price:20000,type:'glove',star:true},
+{base:'★ Driver Gloves | King Snake',wear:'Field-Tested',price:14000,type:'glove',star:true},
+{base:'★ Driver Gloves | Crimson Weave',wear:'Field-Tested',price:11000,type:'glove',star:true},
+{base:'★ Driver Gloves | Garden',wear:'Field-Tested',price:16000,type:'glove',star:true},
+{base:'★ Moto Gloves | Spearmint',wear:'Field-Tested',price:17000,type:'glove',star:true},
+{base:'★ Moto Gloves | Cool Mint',wear:'Field-Tested',price:8000,type:'glove',star:true},
+{base:'★ Moto Gloves | Boom!',wear:'Field-Tested',price:6000,type:'glove',star:true},
+{base:'★ Moto Gloves | Eclipse',wear:'Field-Tested',price:5000,type:'glove',star:true},
+{base:'★ Hand Wraps | Cobalt Skulls',wear:'Field-Tested',price:12000,type:'glove',star:true},
+{base:'★ Hand Wraps | Slaughter',wear:'Field-Tested',price:10000,type:'glove',star:true},
+{base:'★ Hydra Gloves | Emerald',wear:'Field-Tested',price:7000,type:'glove',star:true},
+{base:'★ Hydra Gloves | Rattler',wear:'Field-Tested',price:6000,type:'glove',star:true},
+{base:'★ Broken Fang Gloves | Jade',wear:'Field-Tested',price:8000,type:'glove',star:true},
+
+// ===== ЭКСТРА-ТОП =====
+{base:'★ Karambit | Blue Gem',wear:'Factory New',price:150000,type:'knife',star:true},
+{base:'★ M9 Bayonet | Blue Gem',wear:'Factory New',price:120000,type:'knife',star:true},
+{base:'★ Sport Gloves | Pandora Box',wear:'Factory New',price:80000,type:'glove',star:true},
+{base:'AWP | Dragon Lore (Souvenir)',wear:'Factory New',price:200000,type:'sniper'},
+];
+const RARITY_TIERS=[{name:'Базовый',min:0,max:100,color:'#b0c3d9'},{name:'Армейский',min:100,max:500,color:'#5e98d9'},{name:'Запрещённый',min:500,max:2000,color:'#8847ff'},{name:'Засекреченный',min:2000,max:8000,color:'#d32ce6'},{name:'Тайный',min:8000,max:20000,color:'#eb4b4b'},{name:'★ Нож',min:20000,max:Infinity,color:'#e4ae39'},{name:'★ Легенда',min:100000,max:Infinity,color:'#FF4081'}];
 function getTier(p){for(let i=0;i<RARITY_TIERS.length;i++){if(p>=RARITY_TIERS[i].min&&p<RARITY_TIERS[i].max)return i}return 0}
 function getRarityBar(p){return'<div class="rb2" style="background:'+RARITY_TIERS[getTier(p)].color+';color:'+RARITY_TIERS[getTier(p)].color+'"></div>'}
+function getRarityColor(price){
+  return RARITY_TIERS[getTier(price)].color;
+}
+function flashRarity(el,price){
+  if(!el)return;
+  const color=getRarityColor(price);
+  el.style.setProperty('--glow-color',color);
+  el.classList.remove('win-glow');
+  void el.offsetWidth;
+  el.classList.add('win-glow');
+  setTimeout(()=>el.classList.remove('win-glow'),3200);
+}
+function getDotaRarityColor(price){
+  return DT[dT(price)].c;
+}
+function flashDotaRarity(el,price){
+  if(!el)return;
+  const color=getDotaRarityColor(price);
+  el.style.setProperty('--glow-color',color);
+  el.classList.remove('win-glow');
+  void el.offsetWidth;
+  el.classList.add('win-glow');
+  setTimeout(()=>el.classList.remove('win-glow'),3200);
+}
 function makeSkinObj(p,uid){const n=(p.star?'★ ':'')+p.base+' ('+p.wear+')';return{id:uid,name:p.base,full:n,price:p.price,hash:n,type:p.type,star:!!p.star}}
 let mySkins=[],allTargetSkins=[],selectedFromSkins=[],selectedTo=null,currency=3000,isUpgrading=false,nextId=1,imageCache={},wonSkinPending=null,currentShopSkins=[],desiredChance=null,currentTab='upgrade',craftSkins=[];const MAX_FROM=3,TARGET_POOL_SIZE=20;
 function generateStarterSkins(){const c=ALL_SKIN_POOL.filter(s=>s.price>=50&&s.price<=100);const p=[...c];const r=[];for(let i=0;i<3&&p.length>0;i++)r.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);mySkins=r.map(p=>makeSkinObj(p,nextId++))}
@@ -1381,11 +1700,11 @@ function gIS(s){return getIconForBase(s.name)}
 function gSI(s){const k=s.hash||s.full;if(imageCache[k])return'<img class="fsvg" style="width:100%;height:100%;object-fit:contain" src="'+imageCache[k]+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=gIS({name:this.alt})"/>';if(imageCache[s.name])return'<img class="fsvg" style="width:100%;height:100%;object-fit:contain" src="'+imageCache[s.name]+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=gIS({name:this.alt})"/>';return gIS(s)}
 const THUMB_SIZES={1:{w:120,h:90},2:{w:88,h:66},3:{w:72,h:54}};
 function updatePanels(){const fp=document.getElementById('from-panel'),fc=document.getElementById('from-panel-content'),tp=document.getElementById('to-panel'),tc=document.getElementById('to-panel-content');if(selectedFromSkins.length>0){fp.classList.add('a');const sz=THUMB_SIZES[selectedFromSkins.length]||THUMB_SIZES[3];let h='<div class="fst" style="min-height:'+sz.h+'px">';selectedFromSkins.forEach((s,i)=>{h+='<div class="ft" style="width:'+sz.w+'px;height:'+sz.h+'px"><div class="tb">'+(i+1)+'</div>'+gSI(s)+'</div>'});h+='</div><div class="spn" style="margin-bottom:4px;font-size:.65rem">';selectedFromSkins.forEach(s=>{h+='<div style="padding:1px 0">'+s.name+'</div>'});h+='</div><div class="spp">Сумма: '+selectedFromSkins.reduce((s,x)=>s+x.price,0)+' 🪙</div>';fc.innerHTML=h;fc.className=''}else{fp.classList.remove('a');fc.className='spe';fc.innerHTML='Выберите до 3 скинов<br>в инвентаре'}if(selectedTo){tp.classList.add('a');tc.innerHTML='<div class="spi">'+gSI(selectedTo)+'</div><div class="spn">'+selectedTo.name+'</div><div style="display:flex;justify-content:center;width:100%"><div class="spp">'+selectedTo.price+' 🪙</div></div>';tc.className=''}else{tp.classList.remove('a');tc.className='spe';tc.innerHTML='Выберите скин<br>из доступных'}}
-function renderMySkins(){const w=document.getElementById('my-skins-wrap');document.getElementById('my-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const is=selectedFromSkins.some(x=>x.id===s.id);const idx=selectedFromSkins.findIndex(x=>x.id===s.id);h+='<div class="sc2'+(is?' sf':'')+'" onclick="toggleFromSkin('+s.id+',this)"><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+(is?'<div class="sbg">'+(idx+1)+'</div>':'')+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
+function renderMySkins(){const w=document.getElementById('my-skins-wrap');document.getElementById('my-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const is=selectedFromSkins.some(x=>x.id===s.id);const idx=selectedFromSkins.findIndex(x=>x.id===s.id);h+='<div class="sc2'+(is?' sf':'')+'" onclick="toggleFromSkin('+s.id+',this)"><button class="sell-btn" onclick="sellSkinFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪙">$</button><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+(is?'<div class="sbg">'+(idx+1)+'</div>':'')+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
 function renderTargetSkins(){const w=document.getElementById('target-skins-wrap');document.getElementById('target-count').textContent='('+allTargetSkins.length+')';if(allTargetSkins.length===0){w.innerHTML='<div class="em">Выберите шанс и свои скины — цели появятся здесь</div>';return}let h='<div class="sg">';allTargetSkins.forEach(s=>{h+='<div class="sc2'+(selectedTo&&selectedTo.id===s.id?' st2':'')+'" onclick="selectSkin('+s.id+',this)"><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
 function renderShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин скинов CS2';document.getElementById('shop-bal').innerHTML='<span class="ca">'+currency+'</span> 🪙';let h='';currentShopSkins.forEach(s=>{const cb=currency>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2"><div class="siw2">'+gSI(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2">'+s.price+' 🪙</div><button class="sbb '+(cb?'cb2':'nb2')+'" onclick="buySkin('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+getRarityBar(s.price)+'</div>'});g.innerHTML=h}
 function renderCraftSlots(){for(let i=0;i<3;i++){const sl=document.getElementById('craft-slot-'+(i+1));const s=craftSkins[i];if(s){const t=RARITY_TIERS[getTier(s.price)];sl.className='cs filled';sl.onclick=function(){removeCraftSkin(s.id)};sl.innerHTML='<div class="csrm">✕</div><div class="csi">'+gSI(s)+'</div><div class="csn">'+s.name+'</div><div class="cst" style="color:'+t.color+'">'+t.name+'</div>'+getRarityBar(s.price)}else{sl.className='cs empty';sl.onclick=null;sl.innerHTML='<div class="csp">+</div>'}}updateCraftResultPreview()}
-function renderCraftSkins(){const w=document.getElementById('craft-inventory-wrap');document.getElementById('craft-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const ic=craftSkins.some(x=>x.id===s.id);const iu=selectedFromSkins.some(x=>x.id===s.id);let cls='',bg='';if(ic){cls=' scr';bg='<div class="sbg cb">'+(craftSkins.findIndex(x=>x.id===s.id)+1)+'</div>'}else if(iu){cls=' sf'}const t=RARITY_TIERS[getTier(s.price)];h+='<div class="sc2'+cls+'" onclick="toggleCraftSkin('+s.id+',this)"><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div><div class="stl" style="color:'+t.color+'">'+t.name+'</div>'+bg+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
+function renderCraftSkins(){const w=document.getElementById('craft-inventory-wrap');document.getElementById('craft-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const ic=craftSkins.some(x=>x.id===s.id);const iu=selectedFromSkins.some(x=>x.id===s.id);let cls='',bg='';if(ic){cls=' scr';bg='<div class="sbg cb">'+(craftSkins.findIndex(x=>x.id===s.id)+1)+'</div>'}else if(iu){cls=' sf'}const t=RARITY_TIERS[getTier(s.price)];h+='<div class="sc2'+cls+'" onclick="toggleCraftSkin('+s.id+',this)"><button class="sell-btn" onclick="sellSkinFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪙">$</button><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div><div class="stl" style="color:'+t.color+'">'+t.name+'</div>'+bg+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
 function pickWeightedSkin(pool,totalValue,k){k=k||1.8;const weights=pool.map(s=>{const ratio=s.price/totalValue;return Math.pow(1/Math.max(0.01,ratio),k);});const totalW=weights.reduce((a,b)=>a+b,0);let r=Math.random()*totalW;for(let i=0;i<pool.length;i++){r-=weights[i];if(r<=0)return pool[i];}return pool[pool.length-1];}
 function updateCraftResultPreview(){const p=document.getElementById('craft-result-preview'),tn=document.getElementById('craft-result-tier-name'),st=document.getElementById('craft-result-subtitle'),ic=p.querySelector('.cri'),b=document.getElementById('craft-button');if(craftSkins.length===0){p.className='crp';ic.textContent='❓';tn.textContent='???';tn.style.color='var(--gray-light)';st.textContent='Выберите 3 скина';b.disabled=true;b.textContent='Выберите 3 скина';return;}if(craftSkins.length<3){p.className='crp';ic.textContent='⏳';tn.textContent='???';tn.style.color='var(--gray-light)';st.textContent='Нужно ещё '+(3-craftSkins.length)+' скин(а)';b.disabled=true;b.textContent='Нужно '+(3-craftSkins.length)+' скин(а)';return;}const t=getTier(craftSkins[0].price);const same=craftSkins.every(s=>getTier(s.price)===t);if(!same){p.className='crp locked';ic.textContent='⚠️';tn.textContent='Разная редкость';tn.style.color='var(--red-bright)';st.textContent='Скины должны быть одной редкости';b.disabled=true;b.textContent='Разная редкость';return;}if(t>=RARITY_TIERS.length-1){p.className='crp locked';ic.textContent='🚫';tn.textContent='Максимум';tn.style.color='var(--red-bright)';st.textContent='Достигнут максимальный уровень';b.disabled=true;b.textContent='Максимальный уровень';return;}const nt=RARITY_TIERS[t+1];p.className='crp ready';ic.textContent='✨';tn.textContent=nt.name;tn.style.color=nt.color;const totalValue=craftSkins.reduce((s,x)=>s+x.price,0);const pool=ALL_SKIN_POOL.filter(s=>getTier(s.price)===t+1);if(pool.length>0){const minPrice=Math.min(...pool.map(s=>s.price));const maxPrice=Math.max(...pool.map(s=>s.price));st.innerHTML='Вложено: <b>'+totalValue+' 🪙</b><br><span style="font-size:.55rem;color:var(--gray-light)">Пул: '+minPrice+'–'+maxPrice+' 🪙</span>';}else{st.textContent='Случайный скин';}b.disabled=false;b.textContent='Скрафтить → '+nt.name;}
 function canCraft(){if(craftSkins.length!==3)return false;const t=getTier(craftSkins[0].price);return craftSkins.every(s=>getTier(s.price)===t)&&t<RARITY_TIERS.length-1}
@@ -1414,7 +1733,15 @@ function performCraft(){
   },800);
 }
 function showCraftResult(s,totalValue){const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');const diff=s.price-totalValue;const sign=diff>=0?'+':'';const ratio=s.price/totalValue;let outcome,icon,title,color;if(diff>totalValue*0.2){outcome='win';icon='🎉';title='В плюс!';color='var(--green-bright)';}else if(diff<-totalValue*0.2){outcome='lose';icon='💥';title='В минус...';color='var(--red-bright)';}else if(diff>0){outcome='small-win';icon='✨';title='Небольшой плюс';color='var(--green-bright)';}else if(diff<0){outcome='small-lose';icon='😐';title='Немного в минус';color='var(--orange)';}else{outcome='even';icon='🔨';title='Ровно';color='var(--yellow-bright)';}c.className='rc '+(outcome==='win'||outcome==='small-win'?'s':(outcome==='lose'||outcome==='small-lose'?'f':''));document.getElementById('result-icon').textContent=icon;document.getElementById('result-title').textContent=title;document.getElementById('result-title').style.color=color;document.getElementById('result-subtitle').innerHTML='Получен скин: <b>'+s.name+'</b><br>Цена: <b>'+s.price+' 🪙</b> &nbsp;|&nbsp; Вложено: '+totalValue+' 🪙<br><span style="color:'+color+';font-weight:bold">Разница: '+sign+diff+' 🪙 ('+ratio.toFixed(2)+'x)</span>';document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+s.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';createParticles();o.classList.add('show');}
-
+setTimeout(()=>{
+  const rc=document.getElementById('result-card');
+  if(rc){
+    const color=getDotaRarityColor(s.price);
+    rc.style.setProperty('--glow-color',color);
+    rc.classList.add('win-glow');
+    setTimeout(()=>rc.classList.remove('win-glow'),3200);
+  }
+},100);
 function switchTab(tab){
   currentTab=tab;
   closeSidebar();
@@ -1483,7 +1810,56 @@ function updateUI(){const c=calculateChance();const half=(c/100)*180;const gs=18
 function updateFruitDisplay(){const el=document.getElementById('sfa');if(el)el.textContent=fruit;}
 function openShop(){if(currentTab==='dota'||currentTab==='dota-craft'){generateDotaShop();renderDotaShop()}else{generateShopSkins();renderShop()}document.getElementById('shop-overlay').classList.add('show');sndTab()}
 function closeShop(){document.getElementById('shop-overlay').classList.remove('show');sndDeselect()}
-function buySkin(id,btn){const s=currentShopSkins.find(x=>x.id===id);if(!s)return;if(currency<s.price){showToast('Недостаточно монет!',true);sndToastError();return}currency-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;mySkins.push({id:nextId++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен скин: '+s.name);renderMySkins();renderTargetSkins();renderCraftSkins();updateUI();renderShop();saveGame();renderCabinet()}
+function buySkin(id,btn){const s=currentShopSkins.find(x=>x.id===id);if(!s)return;if(currency<s.price){showToast('Недостаточно монет!',true);sndToastError();return}currency-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;mySkins.push({id:nextId++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен скин: '+s.name);btn.style.setProperty('--glow-color',getRarityColor(s.price));
+btn.classList.add('buy-flash');
+setTimeout(()=>btn.classList.remove('buy-flash'),1000);renderMySkins();renderTargetSkins();renderCraftSkins();updateUI();renderShop();saveGame();renderCabinet()}
+// ===== ПРОДАЖА СКИНОВ =====
+function sellSkinFromInventory(id,event){
+  if(event)event.stopPropagation(); // не открываем апгрейд
+  const idx=mySkins.findIndex(s=>s.id===id);
+  if(idx===-1)return;
+  const s=mySkins[idx];
+  // Комиссия 20% — продаём за 80% цены
+  const commission=Math.max(0.05, 0.20 - getLevel().lvl*0.005); // с 20% до 5%
+  const sellPrice=Math.floor(s.price*(1-commission));
+  if(!confirm(`Продать "${s.name}" за ${sellPrice} 🪙?\n(Комиссия 20% — рыночная цена ${s.price} 🪙)`))return;
+  // Удаляем скин
+  mySkins.splice(idx,1);
+  // Убираем из выбранных, если выбран
+  selectedFromSkins=selectedFromSkins.filter(x=>x.id!==id);
+  craftSkins=craftSkins.filter(x=>x.id!==id);
+  // Начисляем монеты
+  currency+=sellPrice;
+  // Звук и визуал
+  sndSell();
+  if(navigator.vibrate)navigator.vibrate([15,30,15]);
+  showToast(`💰 Продано: +${sellPrice} 🪙`);
+  addHistory('sell','win',`Продан: ${s.name} за ${sellPrice} 🪙`);
+  // Перерисовываем
+  renderMySkins();renderTargetSkins();renderCraftSkins();updateUI();updatePanels();
+  saveGame();renderCabinet();
+  checkAchievements();
+}
+
+function sellDotaItemFromInventory(id,event){
+  if(event)event.stopPropagation();
+  const idx=dMy.findIndex(s=>s.id===id);
+  if(idx===-1)return;
+  const s=dMy[idx];
+  const sellPrice=Math.floor(s.price*0.8);
+  if(!confirm(`Продать "${s.name}" за ${sellPrice} 🪨?\n(Комиссия 20% — рыночная цена ${s.price} 🪨)`))return;
+  dMy.splice(idx,1);
+  dSelF=dSelF.filter(x=>x.id!==id);
+  dCraftItems=dCraftItems.filter(x=>x.id!==id);
+  dCur+=sellPrice;
+  sndSell();
+  if(navigator.vibrate)navigator.vibrate([15,30,15]);
+  showToast(`💰 Продано: +${sellPrice} 🪨`);
+  addHistory('sell','win',`Продан: ${s.name} за ${sellPrice} 🪨`);
+  renderDotaMy();renderDotaTgt();updateDotaUI();dUpdatePanels();
+  dRenderCraftInventory();saveGame();renderCabinet();
+  checkAchievements();
+}
 function showToast(msg,er){const t=document.createElement('div');t.className='toast'+(er?' error':'');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
 
 function performUpgrade(){
@@ -1509,6 +1885,15 @@ function showResult(win){
   c.className='rc '+(win?'s':'f');document.getElementById('result-actions').innerHTML='';
   if(win){
     document.getElementById('result-icon').textContent='🎉';
+    setTimeout(()=>{
+  const rc=document.getElementById('result-card');
+  if(rc){
+    const color=getRarityColor(selectedTo.price);
+    rc.style.setProperty('--glow-color',color);
+    rc.classList.add('win-glow');
+    setTimeout(()=>rc.classList.remove('win-glow'),3200);
+  }
+},100);
     document.getElementById('result-title').textContent='Успех!';
     document.getElementById('result-title').style.color='var(--green-bright)';
     document.getElementById('result-subtitle').textContent='Получен скин: '+selectedTo.name;
@@ -1577,8 +1962,26 @@ function dGenTgt(){
 }
 function dChance(){if(dSelF.length===0||!dSelT)return 0;return dChanceF(dSelF.reduce((s,x)=>s+x.price,0),dSelT.price)}
 function dUpdatePanels(){const fp=document.getElementById('dota-from-panel'),fc=document.getElementById('dota-from-content'),tp=document.getElementById('dota-to-panel'),tc=document.getElementById('dota-to-content');if(dSelF.length>0){fp.classList.add('a');const sz=THUMB_SIZES[dSelF.length]||THUMB_SIZES[3];let h='<div class="fst" style="min-height:'+sz.h+'px">';dSelF.forEach((s,i)=>{h+='<div class="ft" style="width:'+sz.w+'px;height:'+sz.h+'px"><div class="tb rb">'+(i+1)+'</div>'+dIcon(s)+'</div>'});h+='</div><div class="spn" style="margin-bottom:4px;font-size:.65rem">';dSelF.forEach(s=>{h+='<div style="padding:1px 0">'+s.name+'</div>'});h+='</div><div class="spp rp">Сумма: '+dSelF.reduce((s,x)=>s+x.price,0)+' 🪨</div>';fc.innerHTML=h;fc.className=''}else{fp.classList.remove('a');fc.className='spe';fc.innerHTML='Выберите до 3 предметов<br>в инвентаре'}if(dSelT){tp.classList.add('a');tc.innerHTML='<div class="spi">'+dIcon(dSelT)+'</div><div class="spn">'+dSelT.name+'</div><div style="display:flex;justify-content:center;width:100%"><div class="spp rp">'+dSelT.price+' 🪨</div></div>';tc.className=''}else{tp.classList.remove('a');tc.className='spe';tc.innerHTML='Выберите предмет<br>из доступных'}}
-function renderDotaMy(){const w=document.getElementById('dota-my-wrap');document.getElementById('dota-mc').textContent='('+dMy.length+')';if(dMy.length===0){w.innerHTML='<div class="em">Нет предметов. Купите в магазине!</div>';return}let h='<div class="sg">';dMy.forEach(s=>{const is=dSelF.some(x=>x.id===s.id);const idx=dSelF.findIndex(x=>x.id===s.id);const t=DT[dT(s.price)];h+='<div class="sc2 dc'+(is?' dsf':'')+'" onclick="toggleDotaF('+s.id+',this)"><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+(is?'<div class="sbg rb">'+(idx+1)+'</div>':'')+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
-function renderDotaTgt(){const w=document.getElementById('dota-tgt-wrap');document.getElementById('dota-tc').textContent='('+dTgt.length+')';if(dTgt.length===0){w.innerHTML='<div class="em">Выберите шанс и предметы — цели появятся здесь</div>';return}let h='<div class="sg">';dTgt.forEach(s=>{const sel=dSelT&&dSelT.id===s.id?' st2':'';const t=DT[dT(s.price)];h+='<div class="sc2 dc'+sel+'" onclick="selDota('+s.id+',this)"><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
+function renderDotaMy(){const w=document.getElementById('dota-my-wrap');document.getElementById('dota-mc').textContent='('+dMy.length+')';if(dMy.length===0){w.innerHTML='<div class="em">Нет предметов. Купите в магазине!</div>';return}let h='<div class="sg">';dMy.forEach(s=>{const is=dSelF.some(x=>x.id===s.id);const idx=dSelF.findIndex(x=>x.id===s.id);const t=DT[dT(s.price)];h+='<div class="sc2 dc'+(is?' dsf':'')+'" onclick="toggleDotaF('+s.id+',this)"><button class="sell-btn rune" onclick="sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+(is?'<div class="sbg rb">'+(idx+1)+'</div>':'')+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
+  if(wonSkinPending){
+    const cards=w.querySelectorAll('.sc2');
+    cards.forEach(card=>{
+      if(card.innerHTML.includes(wonSkinPending.name)){
+        flashRarity(card,wonSkinPending.price);
+      }
+    });
+  }
+}
+function renderDotaTgt(){const w=document.getElementById('dota-tgt-wrap');document.getElementById('dota-tc').textContent='('+dTgt.length+')';if(dTgt.length===0){w.innerHTML='<div class="em">Выберите шанс и предметы — цели появятся здесь</div>';return}let h='<div class="sg">';dTgt.forEach(s=>{const sel=dSelT&&dSelT.id===s.id?' st2':'';const t=DT[dT(s.price)];h+='<div class="sc2 dc'+sel+'" onclick="selDota('+s.id+',this)"><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
+  if(typeof dWon!=='undefined' && dWon){
+    const cards=w.querySelectorAll('.sc2');
+    cards.forEach(card=>{
+      if(card.innerHTML.includes(dWon.name)){
+        flashDotaRarity(card,dWon.price);
+      }
+    });
+  }
+}
 function updateDotaUI(){const c=dChance();const half=(c/100)*180;const gs=180-half;const ge=180+half;document.getElementById('dota-circle').style.setProperty('--green-start',gs+'deg');document.getElementById('dota-circle').style.setProperty('--green-end',ge+'deg');const cv=document.getElementById('dota-cv');if(dSelF.length>0&&dSelT){cv.textContent=(c%1===0?c:c.toFixed(1))+'%';cv.style.color=c>=50?'var(--green-bright)':'var(--rune-bright)'}else{cv.textContent='--';cv.style.color='var(--rune-bright)'}const b=document.getElementById('dota-btn');if(dSelF.length===0||!dSelT){b.disabled=true;b.textContent='Выберите предметы'}else{b.disabled=false;b.textContent='Апгрейд — '+(c%1===0?c:c.toFixed(1))+'%'}document.getElementById('dota-cur').textContent=dCur;document.getElementById('sra').textContent=dCur}
 function toggleDotaF(id,el){
   if(dUpg)return;
@@ -1681,7 +2084,9 @@ function closeDotaResult(){document.getElementById('result-overlay').classList.r
 function createDotaParticles(){const c=document.getElementById('dota-circle'),r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const colors=['#C6FF00','#00E676','#00E5FF','#ADE55C','#69F0AE'];const count=window.innerWidth<780?18:28;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='pt';p.style.left=cx+'px';p.style.top=cy+'px';p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 12px '+colors[i%colors.length];const a=(Math.PI*2*i)/count,d=120+Math.random()*180;p.style.setProperty('--tx',Math.cos(a)*d+'px');p.style.setProperty('--ty',Math.sin(a)*d+'px');document.body.appendChild(p);setTimeout(()=>p.remove(),1600)}}
 function generateDotaShop(){const c=DOTA_POOL.filter(s=>s.price>=90&&s.price<=505);const r=DOTA_POOL.filter(s=>s.price>505);for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}dShopItems=[...c.slice(0,5),...r.slice(0,7)].map(p=>dMake(p))}
 function renderDotaShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин предметов Dota 2';document.getElementById('shop-bal').innerHTML='<span class="ra">'+dCur+'</span> 🪨';let h='';dShopItems.forEach(s=>{const cb=dCur>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2 di2"><div class="siw2">'+dIcon(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2 rt">'+s.price+' 🪨</div><button class="sbb '+(cb?'rb2':'nb2')+'" onclick="buyDotaItem('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+dBar(s.price)+'</div>'});g.innerHTML=h}
-function buyDotaItem(id,btn){const s=dShopItems.find(x=>x.id===id);if(!s)return;if(dCur<s.price){showToast('Недостаточно рун!',true);sndToastError();return}dCur-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;dMy.push({id:dNext++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star,icon:s.icon});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен предмет: '+s.name);renderDotaMy();renderDotaTgt();updateDotaUI();renderDotaShop();dRenderCraftInventory();saveGame();renderCabinet()}
+function buyDotaItem(id,btn){const s=dShopItems.find(x=>x.id===id);if(!s)return;if(dCur<s.price){showToast('Недостаточно рун!',true);sndToastError();return}dCur-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;dMy.push({id:dNext++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star,icon:s.icon});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен предмет: '+s.name);btn.style.setProperty('--glow-color',getDotaRarityColor(s.price));
+btn.classList.add('buy-flash');
+setTimeout(()=>btn.classList.remove('buy-flash'),1000);renderDotaMy();renderDotaTgt();updateDotaUI();renderDotaShop();dRenderCraftInventory();saveGame();renderCabinet()}
 function renderDotaAll(){renderDotaMy();renderDotaTgt();updateDotaUI();dUpdatePanels()}
 
 // ===== DOTA 2 CRAFT =====
@@ -1709,7 +2114,7 @@ function dRenderCraftInventory(){
     if(ic){cls=' scr';bg='<div class="sbg cb">'+(dCraftItems.findIndex(x=>x.id===s.id)+1)+'</div>';}
     else if(iu){cls=' dsf';}
     const t=DT[dT(s.price)];
-    h+='<div class="sc2 dc'+cls+'" onclick="dToggleCraftItem('+s.id+',this)"><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+bg+dBar(s.price)+'</div>';
+    h+='<div class="sc2 dc'+cls+'" onclick="dToggleCraftItem('+s.id+',this)"><button class="sell-btn rune" onclick="sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+bg+dBar(s.price)+'</div>';
   });
   w.innerHTML=h+'</div>';
 }
@@ -1774,6 +2179,15 @@ function dShowCraftResult(s,totalValue){
   else{outcome='even';icon='🔨';title='Ровно';color='var(--yellow-bright)';}
   c.className='rc '+(outcome==='win'||outcome==='small-win'?'s':(outcome==='lose'||outcome==='small-lose'?'f':''));
   document.getElementById('result-icon').textContent=icon;
+  setTimeout(()=>{
+  const rc=document.getElementById('result-card');
+  if(rc){
+    const color=getRarityColor(s.price);
+    rc.style.setProperty('--glow-color',color);
+    rc.classList.add('win-glow');
+    setTimeout(()=>rc.classList.remove('win-glow'),3200);
+  }
+},100);
   document.getElementById('result-title').textContent=title;
   document.getElementById('result-title').style.color=color;
   document.getElementById('result-subtitle').innerHTML='Получен предмет: <b>'+s.name+'</b><br>Цена: <b>'+s.price+' 🪨</b> &nbsp;|&nbsp; Вложено: '+totalValue+' 🪨<br><span style="color:'+color+';font-weight:bold">Разница: '+sign+diff+' 🪨 ('+ratio.toFixed(2)+'x)</span>';
@@ -2050,8 +2464,30 @@ function updateCasinoUI(){
     b.disabled = fruit < parseInt(b.dataset.bet) || casinoStats.spinning;
   });
   document.getElementById('spin-btn').disabled = fruit < currentBet || casinoStats.spinning;
+  // Блокировка обмена
+  const exIn = document.getElementById('exchange-in');
+  if(exIn){
+    exIn.querySelectorAll('.exchange-btn').forEach((btn, i) => {
+      const costs = [100, 500, 1000, 5000];
+      if(costs[i] !== undefined) btn.disabled = currency < costs[i];
+    });
+  }
+  const exOut = document.getElementById('exchange-out');
+  if(exOut){
+    exOut.querySelectorAll('.exchange-btn').forEach((btn, i) => {
+      const costs = [100, 500, 1000, 100, 500, 1000];
+      if(costs[i] !== undefined) btn.disabled = fruit < costs[i];
+    });
+  }
 }
-
+function switchExchangeTab(tab){
+  document.getElementById('ex-tab-in').classList.toggle('a', tab === 'in');
+  document.getElementById('ex-tab-out').classList.toggle('a', tab === 'out');
+  document.getElementById('exchange-in').style.display = tab === 'in' ? '' : 'none';
+  document.getElementById('exchange-out').style.display = tab === 'out' ? '' : 'none';
+  sndTab();
+  if(navigator.vibrate) navigator.vibrate(10);
+}
 function exchangeCoins(cost, gain){
   if(currency < cost){
     showToast('Недостаточно монет! Нужно ' + cost + ' 🪙', true);
@@ -2068,6 +2504,44 @@ function exchangeCoins(cost, gain){
   saveGame();
   renderCabinet();
   addHistory('exchange', 'win', `Обмен: -${cost} 🪙 → +${gain} 🍉`);
+}
+function exchangeFruitToCoins(fruitCost){
+  const commission = Math.max(0.03, 0.10 - getLevel().lvl * 0.002); // 10% → 3%
+  const coinsGain = Math.floor(fruitCost * (1 - commission));
+  if(fruit < fruitCost){
+    showToast('Недостаточно фруктиков! Нужно ' + fruitCost + ' 🍉', true);
+    sndToastError();
+    return;
+  }
+  fruit -= fruitCost;
+  currency += coinsGain;
+  sndSell();
+  if(navigator.vibrate) navigator.vibrate([15, 30, 15]);
+  showToast('💱 Обмен: -' + fruitCost + ' 🍉 → +' + coinsGain + ' 🪙 (налог ' + Math.round(commission*100) + '%)');
+  updateUI();
+  updateCasinoUI();
+  saveGame();
+  renderCabinet();
+  addHistory('exchange', 'win', `Обмен: -${fruitCost} 🍉 → +${coinsGain} 🪙 (налог ${Math.round(commission*100)}%)`);
+}
+
+function exchangeFruitToRunes(fruitCost, runesGain){
+  if(fruit < fruitCost){
+    showToast('Недостаточно фруктиков! Нужно ' + fruitCost + ' 🍉', true);
+    sndToastError();
+    return;
+  }
+  fruit -= fruitCost;
+  dCur += runesGain;
+  sndSell();
+  if(navigator.vibrate) navigator.vibrate([15, 30, 15]);
+  showToast('💱 Обмен: -' + fruitCost + ' 🍉 → +' + runesGain + ' 🪨');
+  updateUI();
+  updateDotaUI();
+  updateCasinoUI();
+  saveGame();
+  renderCabinet();
+  addHistory('exchange', 'win', `Обмен: -${fruitCost} 🍉 → +${runesGain} 🪨`);
 }
 // ===== РУЛЕТКА (упрощённая) =====
 const RL_RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
@@ -2406,17 +2880,17 @@ function questsRefreshNeeded(){
 // ===== УРОВНИ АККАУНТА =====
 const XP_KEY='cs2_dota_xp';
 const LEVELS=[
-  {lvl:1,xp:0,bonus:0,title:'Новичок'},
-  {lvl:2,xp:100,bonus:0,title:'Ученик'},
-  {lvl:3,xp:250,bonus:0,title:'Игрок'},
-  {lvl:4,xp:500,bonus:0.02,title:'Опытный'},
-  {lvl:5,xp:1000,bonus:0.05,title:'Боец'},
-  {lvl:7,xp:2500,bonus:0.07,title:'Ветеран'},
-  {lvl:10,xp:5000,bonus:0.10,title:'Мастер'},
-  {lvl:15,xp:12000,bonus:0.15,title:'Гуру'},
-  {lvl:20,xp:25000,bonus:0.20,title:'Легенда'},
-  {lvl:30,xp:80000,bonus:0.30,title:'Чемпион'},
-  {lvl:50,xp:200000,bonus:0.50,title:'Бессмертный'},
+  {lvl:1,xp:0,bonus:0,title:'Новичок',icon:'🐣',color:'#888'},
+  {lvl:2,xp:100,bonus:0,title:'Ученик',icon:'📘',color:'#b0c3d9'},
+  {lvl:3,xp:250,bonus:0,title:'Игрок',icon:'🎮',color:'#5e98d9'},
+  {lvl:4,xp:500,bonus:0.02,title:'Опытный',icon:'⚔️',color:'#5e98d9'},
+  {lvl:5,xp:1000,bonus:0.05,title:'Боец',icon:'🔥',color:'#66CCFF'},
+  {lvl:7,xp:2500,bonus:0.07,title:'Ветеран',icon:'🎖️',color:'#00BFFF'},
+  {lvl:10,xp:5000,bonus:0.10,title:'Мастер',icon:'⭐',color:'#BA68C8'},
+  {lvl:15,xp:12000,bonus:0.15,title:'Алмазник',icon:'💎',color:'#9B59B6'},
+  {lvl:20,xp:25000,bonus:0.20,title:'Легенда',icon:'👑',color:'#FFD700'},
+  {lvl:30,xp:80000,bonus:0.30,title:'Чемпион',icon:'🏆',color:'#FF9800'},
+  {lvl:50,xp:200000,bonus:0.50,title:'Босс Апгрейдов',icon:'💀',color:'rainbow'},
 ];
 let playerXP=0;
 
@@ -2453,12 +2927,13 @@ function addXP(amount){
   playerXP+=amount;
   const newLevel=getLevel().lvl;
   if(newLevel>oldLevel){
-    const l=getLevel();
-    showToast(`⭐ Уровень ${l.lvl}! ${l.title}${l.bonus>0?` (+${Math.round(l.bonus*100)}% к наградам)`:''}`);
-    sndWin();
-    casinoRainCoins(10);
-    if(navigator.vibrate)navigator.vibrate([30,50,30,50,100]);
-  }
+  const l=getLevel();
+  showLevelUpToast(l);
+  sndWin();
+  casinoRainCoins(20);
+  casinoFlash();
+  if(navigator.vibrate)navigator.vibrate([30,50,30,50,100]);
+}
   updateLevelUI();
   saveXP();
   saveGame();
@@ -2480,7 +2955,60 @@ function updateLevelUI(){
     bar.style.width='100%';
     txt.textContent=`${playerXP} XP (MAX)`;
   }
-  if(lbl)lbl.innerHTML=`⭐ Ур. ${l.lvl} <span style="color:#a0a0b8;font-size:.7rem">${l.title}</span>${l.bonus>0?` <span style="color:#00E676">+${Math.round(l.bonus*100)}%</span>`:''}`;
+  if(lbl){
+    const colorStyle = l.color==='rainbow'
+      ? 'background:linear-gradient(90deg,#FF4081,#FFD700,#00E676,#00E5FF,#BA68C8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'
+      : `color:${l.color};`;
+    lbl.innerHTML=`${l.icon} Ур. ${l.lvl} <span style="${colorStyle}font-weight:bold">${l.title}</span>${l.bonus>0?` <span style="color:#00E676;font-size:.65rem">+${Math.round(l.bonus*100)}%</span>`:''}`;
+    const ut=document.getElementById('user-title');
+if(ut){
+  const colorStyle = l.color==='rainbow'
+    ? 'background:linear-gradient(90deg,#FF4081,#FFD700,#00E676,#00E5FF,#BA68C8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'
+    : `color:${l.color};`;
+  ut.innerHTML=`<span style="${colorStyle}">${l.icon} ${l.title}</span>`;
+}
+const nx=document.getElementById('level-next');
+if(nx){
+  if(n){
+    const colorStyle = n.color==='rainbow'
+      ? 'background:linear-gradient(90deg,#FF4081,#FFD700,#00E676,#00E5FF,#BA68C8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'
+      : `color:${n.color};`;
+    nx.innerHTML=`До <span style="${colorStyle}font-weight:bold">${n.icon} ${n.title}</span>`;
+  } else {
+    nx.textContent='★ МАКСИМУМ ★';
+    nx.style.color='#FFD700';
+  }
+}
+  }
+  function showLevelUpToast(l){
+  const t=document.createElement('div');
+  const colorStyle = l.color==='rainbow'
+    ? 'background:linear-gradient(90deg,#FF4081,#FFD700,#00E676,#00E5FF,#BA68C8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'
+    : `color:${l.color};`;
+  t.style.cssText=`
+    position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);
+    background:linear-gradient(135deg,rgba(30,20,60,.98),rgba(50,30,80,.98));
+    border:3px solid ${l.color==='rainbow'?'#FFD700':l.color};
+    border-radius:20px;padding:24px 40px;z-index:9999;
+    box-shadow:0 0 60px ${l.color==='rainbow'?'#FFD700':l.color},0 0 120px rgba(255,215,0,.3);
+    animation:levelUpPop .6s cubic-bezier(.25,.8,.25,1);
+    text-align:center;pointer-events:none;
+  `;
+  t.innerHTML=`
+    <div style="font-size:3rem;margin-bottom:8px;filter:drop-shadow(0 0 20px ${l.color==='rainbow'?'#FFD700':l.color})">${l.icon}</div>
+    <div style="font-size:.85rem;color:#a0a0b8;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px">Новый уровень!</div>
+    <div style="font-size:2rem;font-weight:bold;color:#fff;text-shadow:0 0 12px rgba(255,255,255,.5)">Ур. ${l.lvl}</div>
+    <div style="font-size:1.2rem;font-weight:bold;margin-top:6px;${colorStyle}">${l.title}</div>
+    ${l.bonus>0?`<div style="font-size:.8rem;color:#00E676;margin-top:8px;font-weight:bold">+${Math.round(l.bonus*100)}% к наградам 🍉</div>`:''}
+  `;
+  document.body.appendChild(t);
+  setTimeout(()=>{
+    t.style.transition='all .5s';
+    t.style.opacity='0';
+    t.style.transform='translate(-50%,-60%) scale(.8)';
+    setTimeout(()=>t.remove(),500);
+  },2200);
+}
 }
 // ===== ДОСТИЖЕНИЯ =====
 const ACH_KEY='cs2_dota_achievements';
