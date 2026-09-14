@@ -78,6 +78,8 @@ body::before{content:'';position:fixed;inset:0;
     radial-gradient(circle at 70% 60%, rgba(0,191,255,.12) 0%, transparent 40%);
   pointer-events:none;z-index:0}
 input,textarea{-webkit-user-select:text;user-select:text}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .bg-blobs{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
 .bg-blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;mix-blend-mode:screen}
 .bg-blob-1{width:500px;height:500px;background:radial-gradient(circle,#FF4081,transparent 70%);top:-150px;left:-100px;animation:bd1 22s ease-in-out infinite}
@@ -196,7 +198,10 @@ input,textarea{-webkit-user-select:text;user-select:text}
 /* Содержимое поверх водяных знаков */
 .tv > *{position:relative;z-index:1}
 .tv{display:none}
-.tv.a{display:block;animation:fadeIn .4s ease}
+.tv.a{display:block;animation:tabSlideIn .4s cubic-bezier(.25,.8,.25,1)}
+.tv.a.slide-back{animation:tabSlideBack .4s cubic-bezier(.25,.8,.25,1)}
+@keyframes tabSlideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tabSlideBack{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px;font-size:1.4rem;background:linear-gradient(135deg, #FFEB3B 0%, #FF9800 50%, #FF4081 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 2px 12px rgba(255,152,0,.4))}
 .hr{display:flex;align-items:center;justify-content:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1);position:relative}
@@ -291,6 +296,42 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .sell-btn.rune{background:linear-gradient(135deg,#ADE55C,#00E676);box-shadow:0 0 10px rgba(173,229,92,.7)}
 .sell-btn.rune:hover{box-shadow:0 0 16px rgba(173,229,92,1)}
 .rb2{position:absolute;bottom:0;left:0;right:0;height:3px;box-shadow:0 0 8px currentColor}
+/* === АНИМИРОВАННЫЕ СКИНЫ === */
+@keyframes legendaryPulse{
+  0%,100%{box-shadow:0 0 8px var(--leg-color),0 0 16px var(--leg-color),inset 0 0 12px rgba(255,255,255,.1)}
+  50%{box-shadow:0 0 16px var(--leg-color),0 0 32px var(--leg-color),0 0 48px var(--leg-color),inset 0 0 20px rgba(255,255,255,.2)}
+}
+@keyframes legendaryBorder{
+  0%{border-color:var(--leg-color);filter:brightness(1)}
+  50%{border-color:var(--leg-color);filter:brightness(1.4)}
+  100%{border-color:var(--leg-color);filter:brightness(1)}
+}
+@keyframes sparkle{
+  0%{opacity:0;transform:scale(0) rotate(0deg)}
+  30%{opacity:1;transform:scale(1) rotate(180deg)}
+  70%{opacity:1;transform:scale(1) rotate(360deg)}
+  100%{opacity:0;transform:scale(0) rotate(540deg)}
+}
+.legendary{position:relative;overflow:hidden}
+.legendary::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent 0deg,var(--leg-color) 20deg,transparent 60deg,transparent 180deg,var(--leg-color) 200deg,transparent 240deg,transparent 360deg);animation:glowSpin 4s linear infinite;opacity:.08;z-index:0;pointer-events:none;border-radius:inherit}
+.legendary > *{position:relative;z-index:1}
+.si2.legendary,.si2.epic{position:relative;overflow:hidden;border-radius:12px}
+.sc2.legendary,.sc2.epic{position:relative;overflow:hidden;border-radius:10px}
+.si2.legendary .sparkle,.sc2.legendary .sparkle,.si2.epic .sparkle,.sc2.epic .sparkle{z-index:20}
+
+/* Искры на карточке */
+.legendary .sparkle{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--leg-color);pointer-events:none;z-index:15;box-shadow:0 0 8px var(--leg-color),0 0 16px var(--leg-color);animation:sparkle 3s ease-in-out infinite;opacity:0}
+.legendary .sparkle.s1{top:8%;left:6%;animation-delay:0s}
+.legendary .sparkle.s2{top:8%;right:6%;animation-delay:.7s;width:4px;height:4px}
+.legendary .sparkle.s3{bottom:18%;left:6%;animation-delay:1.4s;width:5px;height:5px}
+.legendary .sparkle.s4{bottom:18%;right:6%;animation-delay:2.1s;width:4px;height:4px}
+
+/* Эпик-скины — просто лёгкое мерцание */
+@keyframes epicShimmer{
+  0%,100%{box-shadow:0 0 6px var(--leg-color),inset 0 0 8px rgba(255,255,255,.08)}
+  50%{box-shadow:0 0 14px var(--leg-color),0 0 24px var(--leg-color),inset 0 0 12px rgba(255,255,255,.15)}
+}
+.epic{position:relative;overflow:hidden}
 .em{color:var(--gray-light);font-style:italic;padding:24px;text-align:center;font-size:.85rem}
 .craft-top{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
 .cs{width:120px;height:170px;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:2px solid var(--glass-border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;position:relative;transition:all .25s;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.3)}
@@ -412,6 +453,8 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .auth-guest{margin-top:12px;text-align:center}
 .auth-guest button{background:transparent;border:1.5px solid rgba(255,255,255,.15);color:#c0c0d8;padding:10px 24px;border-radius:10px;font-weight:bold;font-size:.78rem;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s;font-family:inherit}
 .auth-guest button:hover{border-color:var(--purple-bright);color:#fff;background:rgba(186,104,200,.1)}
+.theme-toggle{position:fixed;top:16px;right:72px;z-index:100;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.theme-toggle:hover{border-color:var(--yellow-bright);transform:scale(1.12) rotate(-8deg);box-shadow:0 0 24px rgba(255,215,0,.5)}
 .stg{position:fixed;top:16px;right:16px;z-index:100;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.3)}
 .stg:hover{border-color:var(--yellow-bright);transform:scale(1.12) rotate(8deg);box-shadow:0 0 24px rgba(255,215,0,.5)}
 .ro{position:fixed;inset:0;background:rgba(10,5,25,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
@@ -443,8 +486,8 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .shc{color:#c0c0d0;font-size:.88rem}
 .shc .ca{color:var(--yellow-bright);text-shadow:0 0 8px rgba(255,215,0,.5)}
 .shc .ra{color:var(--rune-bright);text-shadow:0 0 8px rgba(173,229,92,.5)}
-.shx{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);width:34px;height:34px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:12px;font-family:inherit}
-.shx:hover{background:linear-gradient(135deg, var(--red-bright), var(--red));transform:scale(1.15) rotate(90deg);box-shadow:0 0 16px rgba(255,82,82,.6)}
+.shx{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);width:34px;height:34px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:12px;font-family:inherit;line-height:1;padding:0}
+.shx:hover{background:linear-gradient(135deg, var(--red-bright), var(--red));transform:scale(1.15);box-shadow:0 0 16px rgba(255,82,82,.6)}
 .sgw2{overflow-y:auto;padding:16px;flex:1;-webkit-overflow-scrolling:touch}
 .sgw2::-webkit-scrollbar{width:8px}
 .sgw2::-webkit-scrollbar-track{background:rgba(0,0,0,.2);border-radius:4px}
@@ -653,6 +696,108 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
   .bg-blob{animation:none!important}
   .uc,.uc::after{animation:none!important}
 }
+/* === СВЕТЛАЯ ТЕМА === */
+body.light{
+  --glass-bg:rgba(230,225,240,.85);
+  --glass-border:rgba(80,70,110,.18);
+  background:radial-gradient(circle at 15% 15%, #d4c4e0 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, #c4d4e8 0%, transparent 50%),
+    radial-gradient(circle at 20% 85%, #e8d0dc 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, #ccdcc8 0%, transparent 50%),
+    linear-gradient(135deg, #d8cee8 0%, #ddd0e8 40%, #e8d8e0 70%, #d0dae8 100%);
+  background-attachment:fixed;
+  color:#2a2038;
+}
+body.light::before{opacity:.4}
+body.light .bg-blob{opacity:.25}
+body.light .nb{color:#2a2a3e}
+body.light .nb:hover{background:rgba(255,215,0,.25)}
+body.light .nb.a{color:#1a1a2e}
+body.light .nt{color:inherit}
+body.light .ni{filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+body.light h1{filter:drop-shadow(0 2px 8px rgba(255,152,0,.3))}
+body.light .ht,body.light .cd,body.light .spe,body.light .scl,body.light .cl{color:#555}
+body.light .sp{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .spe{color:#666}
+body.light .uc{background:rgba(255,255,255,.85)}
+body.light .ss{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .st{background:linear-gradient(90deg,rgba(255,215,0,.15),transparent);color:#1a1a2e}
+body.light .st.rt{color:#1a1a2e}
+body.light .st .ct{color:#666}
+body.light .sc2{background:linear-gradient(135deg,rgba(225,220,240,.9),rgba(210,205,225,.9));border-color:rgba(80,70,110,.18)}
+body.light .sc2:hover{background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,255,255,.9))}
+body.light .sn2{color:#1a1a2e}
+body.light .cs,body.light .crp,body.light .dcs,body.light .dcrp{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .csn{color:#1a1a2e}
+body.light .ci{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .cab-card{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .cab-info-row{border-color:rgba(0,0,0,.08)}
+body.light .cab-info-label,body.light .cab-email{color:#666}
+body.light .cab-info-value{color:#1a1a2e;text-shadow:none}
+body.light .cab-stat{background:rgba(255,255,255,.5);border-color:rgba(0,0,0,.08)}
+body.light .cab-stat-lbl{color:#666}
+body.light .user-profile{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .user-login{color:#1a1a2e;text-shadow:none}
+body.light .user-email{color:#888}
+body.light .level-card{background:rgba(220,215,235,.85)!important;border-color:rgba(80,70,110,.15)!important}
+body.light #level-label{color:#1a1a2e!important}
+body.light .sc{background:rgba(220,215,235,.85);border-color:rgba(80,70,110,.15)}
+body.light .scl{color:#666}
+body.light .auth-card{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,240,255,.98));border-color:rgba(255,215,0,.5)}
+body.light .auth-title{background:linear-gradient(135deg,#FF9800,#FF4081);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.light .auth-subtitle{color:#666}
+body.light .auth-field label{color:#333}
+body.light .auth-field input,body.light .auth-field select{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.15);color:#1a1a2e}
+body.light .auth-field input::placeholder{color:#999}
+body.light .auth-field select option{background:#fff;color:#1a1a2e}
+body.light .auth-tabs{background:rgba(0,0,0,.08)}
+body.light .auth-tab{color:#666}
+body.light .auth-tab:hover:not(.a){color:#1a1a2e;background:rgba(0,0,0,.05)}
+body.light .auth-footer{color:#666}
+body.light .auth-guest button{color:#666;border-color:rgba(0,0,0,.2)}
+body.light .rc{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,240,255,.98))}
+body.light .rs{color:#555}
+body.light .sct{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,240,255,.98))}
+body.light .shc{color:#555}
+body.light .si2{background:linear-gradient(135deg,rgba(225,220,240,.9),rgba(210,205,225,.9));border-color:rgba(80,70,110,.18)}
+body.light .sin2{color:#1a1a2e}
+body.light .hc{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,240,255,.98))}
+body.light .hitem{background:rgba(0,0,0,.03)}
+body.light .hitem:hover{background:rgba(0,0,0,.06)}
+body.light .hitem .htext{color:#1a1a2e}
+body.light .hitem .htime{color:#888}
+body.light .casino-machine{background:linear-gradient(145deg,#f5f0ff,#e8e0ff);box-shadow:0 0 40px rgba(255,215,0,.3),0 20px 60px rgba(0,0,0,.2)}
+body.light .slots-window{background:linear-gradient(180deg,#f0e8ff,#e8dfff);border-color:#aaa}
+body.light .slot-reel{background:linear-gradient(180deg,#e8dfff,#d8ccf0,#e8dfff)}
+body.light .casino-subtitle{color:#666}
+body.light .bet-label{color:#555}
+body.light .bet-btn{background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(240,240,255,.9));color:#1a1a2e;border-color:rgba(255,215,0,.4)}
+body.light .payout-row{border-color:rgba(0,0,0,.08)}
+body.light .payout-combo{color:#1a1a2e}
+body.light .casino-stat{background:rgba(255,255,255,.6);border-color:rgba(0,0,0,.08)}
+body.light .casino-stat-lbl{color:#666}
+body.light .exchange-btn{background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(240,240,255,.9));color:#1a1a2e}
+body.light .sb{background:linear-gradient(180deg,rgba(225,220,240,.98),rgba(210,205,230,.98))}
+body.light .user-title{color:#1a1a2e}
+body.light #user-title span{color:#1a1a2e!important}
+body.light .tv::before,body.light .tv::after{color:#1a1a2e;opacity:.04}
+body.light .toast{background:linear-gradient(135deg,rgba(76,175,80,.95),rgba(56,142,60,.95))}
+body.light .toast.error{background:linear-gradient(135deg,rgba(244,67,54,.95),rgba(200,30,20,.95))}
+body.light .rb3.keep{background:linear-gradient(135deg,rgba(200,195,215,.9),rgba(180,175,200,.9));color:#2a2038;border:1.5px solid rgba(80,70,110,.3);box-shadow:0 4px 12px rgba(80,70,110,.15)}
+body.light .rb3.keep:hover{background:linear-gradient(135deg,rgba(190,185,205,.95),rgba(170,165,190,.95));color:#1a1030;border-color:rgba(80,70,110,.5)}
+body.light .rb3.sell{background:linear-gradient(135deg,#FFC107,#FF9800);color:#1a1030;box-shadow:0 4px 16px rgba(255,152,0,.4)}
+body.light .rb3.sell.rsell{background:linear-gradient(135deg,#ADE55C,#4CAF50);color:#1a1030;box-shadow:0 4px 16px rgba(173,229,92,.4)}
+body.light .shx{background:rgba(80,70,110,.15);color:#2a2038;border-color:rgba(80,70,110,.3)}
+body.light .shx:hover{background:linear-gradient(135deg,#F44336,#C62828);color:#fff}
+body.light .ccb{background:rgba(200,195,215,.9);color:#2a2038;border-color:rgba(80,70,110,.3)}
+body.light .ccb:hover{background:rgba(190,185,205,.95);border-color:rgba(80,70,110,.5)}
+body.light .ub:disabled{background:#aaa;color:#555}
+body.light .cb:disabled{background:#aaa;color:#555}
+body.light .dcb:disabled{background:#aaa;color:#555}
+body.light .sbb.nb2{background:rgba(150,145,165,.4);color:#666}
+body.light .spin-btn:disabled{background:#aaa;color:#555}
+body.light .bet-btn:disabled{opacity:.5}
+body.light .exchange-btn:disabled{opacity:.5}
 </style>
 </head>
 <body>
@@ -720,6 +865,7 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 </div>
 
 <div class="stg" onclick="toggleSound()">🔊</div>
+<div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Сменить тему">🌙</div>
 <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">→</button>
 <div class="aw">
   <div class="sb">
@@ -736,6 +882,7 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
       <button class="nb" data-tab="achievements" onclick="switchTab('achievements')" style="border-color:#FFD700;color:#FFD700"><span class="ni">🏅</span><span class="nt">Достижения</span></button>
       <button class="nb" data-tab="quests" onclick="switchTab('quests')" style="border-color:#00E5FF;color:#00E5FF"><span class="ni">📋</span><span class="nt">Квесты <span id="quest-counter" style="color:#FFD700;font-size:.65rem">0/3</span></span></button>
       <button class="nb" data-tab="cases" onclick="switchTab('cases')" style="border-color:#9B59B6;color:#9B59B6"><span class="ni">🎁</span><span class="nt">Кейсы</span></button>
+      <button class="nb" data-tab="bank" onclick="switchTab('bank')" style="border-color:#FFD700;color:#FFD700"><span class="ni">🏦</span><span class="nt">Банк</span></button>
     </div>
     <div class="sbb">
       <div class="user-profile" id="user-profile" onclick="switchTab('cabinet')">
@@ -1028,6 +1175,58 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
     <div class="cd" style="margin-top:14px" id="wheel-cooldown"></div>
   </div>
 </div>
+<div class="tv" id="bank-view">
+  <div class="hr"><h1 style="background:linear-gradient(135deg,#FFD700,#FF9800,#FFEB3B);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">🏦 Банк</h1></div>
+  <div style="max-width:640px;margin:0 auto">
+
+    <div class="ss" style="margin-bottom:16px">
+      <div class="st" style="color:#FFD700;background:linear-gradient(90deg,rgba(255,215,0,.1),transparent)">💎 Ваш вклад</div>
+      <div style="padding:24px;text-align:center">
+        <div style="font-size:.8rem;color:#a0a0b8;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">Накоплено</div>
+        <div id="bank-stored" style="font-size:2.6rem;font-weight:bold;color:#FFD700;text-shadow:0 0 20px rgba(255,215,0,.7);line-height:1;margin-bottom:8px">0</div>
+        <div style="font-size:.85rem;color:#00E676;margin-bottom:16px" id="bank-rate">+0 🪙/час</div>
+        <div style="background:rgba(0,0,0,.4);border-radius:8px;height:8px;overflow:hidden;margin-bottom:8px">
+          <div id="bank-progress" style="height:100%;background:linear-gradient(90deg,#FFD700,#FF9800);width:0%;transition:width .5s;box-shadow:0 0 12px rgba(255,215,0,.6)"></div>
+        </div>
+        <div style="font-size:.7rem;color:#a0a0b8;margin-bottom:20px" id="bank-info">Вклад пуст</div>
+        <button class="ub" id="bank-withdraw-btn" onclick="bankWithdraw()" style="background:linear-gradient(135deg,#00E676,#4CAF50);min-width:220px;display:none">💰 Забрать всё</button>
+      </div>
+    </div>
+
+    <div class="ss" style="margin-bottom:16px">
+      <div class="st" style="color:#FFEB3B;background:linear-gradient(90deg,rgba(255,235,59,.1),transparent)">📥 Положить монеты</div>
+      <div style="padding:20px">
+        <div style="font-size:.75rem;color:#a0a0b8;text-align:center;margin-bottom:12px">Минимум 1 000 🪙 · Максимум <span id="bank-limit" style="color:#FFD700;font-weight:bold">0</span> 🪙</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px">
+          <button class="exchange-btn" onclick="bankSetAmount(1000)" style="width:auto;padding:10px 16px;font-size:.75rem">+1 000</button>
+          <button class="exchange-btn" onclick="bankSetAmount(10000)" style="width:auto;padding:10px 16px;font-size:.75rem">+10 000</button>
+          <button class="exchange-btn" onclick="bankSetAmount(50000)" style="width:auto;padding:10px 16px;font-size:.75rem">+50 000</button>
+          <button class="exchange-btn" onclick="bankSetAmount(currency)" style="width:auto;padding:10px 16px;font-size:.75rem">Всё</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;background:rgba(0,0,0,.5);border:2px solid rgba(255,215,0,.4);border-radius:10px;overflow:hidden">
+    <button onclick="bankAdjust(-1000)" style="background:transparent;border:none;color:#FFD700;font-size:1.2rem;font-weight:bold;width:36px;height:44px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(255,215,0,.15)'" onmouseout="this.style.background='transparent'">−</button>
+    <input type="number" id="bank-amount-input" placeholder="Сумма" min="1000" style="width:130px;padding:12px 4px;background:transparent;border:none;color:#fff;font-size:.95rem;text-align:center;font-family:inherit;outline:none;-moz-appearance:textfield;-webkit-appearance:none;appearance:none">
+    <button onclick="bankAdjust(1000)" style="background:transparent;border:none;color:#FFD700;font-size:1.2rem;font-weight:bold;width:36px;height:44px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(255,215,0,.15)'" onmouseout="this.style.background='transparent'">+</button>
+  </div>
+  <button class="ub" onclick="bankDeposit()" style="min-width:140px;padding:12px 24px">Положить</button>
+</div>
+      </div>
+    </div>
+
+    <div class="ss">
+      <div class="st" style="color:#00E5FF;background:linear-gradient(90deg,rgba(0,229,255,.1),transparent)">📊 Информация</div>
+      <div style="padding:16px;font-size:.8rem;color:#c0c0d8;line-height:1.7">
+        • Процент: <b style="color:#00E676">1% в час</b><br>
+        • Проценты капают даже когда игра закрыта<br>
+        • Забрать можно в любой момент<br>
+        • Лимит вклада растёт с уровнем<br>
+        • Формула лимита: <b style="color:#FFD700">100 000 × уровень 🪙</b>
+      </div>
+    </div>
+
+  </div>
+</div>
 <div class="tv" id="cases-view">
   <div class="hr"><h1 style="background:linear-gradient(135deg,#9B59B6,#FF4081,#FFD700);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">🎁 Кейсы</h1></div>
   <div style="max-width:900px;margin:0 auto">
@@ -1126,6 +1325,7 @@ const CURRENT_USER_KEY='cs2_dota_upgrader_current_user';
 let currentUser=null;
 let forgotResetAccount=null;
 let fruit=0;
+function createParticles(){const c=document.getElementById('upgrade-circle'),r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const colors=['#FFEB3B','#00E676','#00E5FF','#FF4081','#BA68C8'];const count=window.innerWidth<780?18:28;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='pt';p.style.left=cx+'px';p.style.top=cy+'px';p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 12px '+colors[i%colors.length];const a=(Math.PI*2*i)/count,d=120+Math.random()*180;p.style.setProperty('--tx',Math.cos(a)*d+'px');p.style.setProperty('--ty',Math.sin(a)*d+'px');document.body.appendChild(p);setTimeout(()=>p.remove(),1600)}}
 let currency=3000;
 let dCur=3000;
 async function hashPassword(password){
@@ -1304,7 +1504,8 @@ function saveGame(){
       casinoStats:casinoStats,
       achievements:unlockedAch,
     __stats:window.__stats,
-      playerXP:playerXP};
+      playerXP:playerXP,
+      bankData:bankData};
     localStorage.setItem(getSaveKey(),JSON.stringify(data));
   }catch(e){console.warn('Save failed',e);}
 }
@@ -1332,6 +1533,7 @@ function loadGame(){
     if(data.achievements)unlockedAch=data.achievements;
     if(data.__stats)window.__stats={...window.__stats,...data.__stats};
     if(data.playerXP!==undefined)playerXP=data.playerXP;
+    if(data.bankData)bankData=data.bankData;
     return mySkins.length>0||dMy.length>0;
   }catch(e){console.warn('Load failed',e);return false;}
 }
@@ -1401,6 +1603,8 @@ function reloadPlayerSave(){
   loadAchievements();
   playerXP=0;
   loadXP();
+  bankData={deposit:0,startTime:0,withdrawn:0};
+  bankLoad();
   const loaded=loadGame();
   if(!loaded){generateStarterSkins();dStart();}
   generateShopSkins();renderAll();updateUI();updatePanels();
@@ -1543,6 +1747,26 @@ function closeSidebar(){
   setTimeout(()=>{btn.textContent='→';},280);
   const bd=document.querySelector('.sb-backdrop');
   if(bd)bd.classList.remove('show');
+}
+function toggleTheme(){
+  const body=document.body;
+  const btn=document.getElementById('theme-toggle');
+  const isLight=body.classList.toggle('light');
+  if(btn)btn.textContent=isLight?'☀️':'🌙';
+  try{localStorage.setItem('cs2_dota_theme',isLight?'light':'dark');}catch(e){}
+  sndSelect();
+  if(navigator.vibrate)navigator.vibrate(10);
+}
+
+function loadTheme(){
+  try{
+    const saved=localStorage.getItem('cs2_dota_theme');
+    if(saved==='light'){
+      document.body.classList.add('light');
+      const btn=document.getElementById('theme-toggle');
+      if(btn)btn.textContent='☀️';
+    }
+  }catch(e){}
 }
 function toggleSound(){if(!audioCtx)initAudio();soundEnabled=!soundEnabled;if(masterGain&&audioCtx)masterGain.gain.setTargetAtTime(soundEnabled?.55:0,audioCtx.currentTime,.025);document.querySelector('.stg').textContent=soundEnabled?'🔊':'🔇';}
 document.addEventListener('click',initAudio,{once:true});
@@ -1690,6 +1914,33 @@ const ALL_SKIN_POOL=[
 const RARITY_TIERS=[{name:'Базовый',min:0,max:100,color:'#b0c3d9'},{name:'Армейский',min:100,max:500,color:'#5e98d9'},{name:'Запрещённый',min:500,max:2000,color:'#8847ff'},{name:'Засекреченный',min:2000,max:8000,color:'#d32ce6'},{name:'Тайный',min:8000,max:20000,color:'#eb4b4b'},{name:'★ Нож',min:20000,max:Infinity,color:'#e4ae39'},{name:'★ Легенда',min:100000,max:Infinity,color:'#FF4081'}];
 function getTier(p){for(let i=0;i<RARITY_TIERS.length;i++){if(p>=RARITY_TIERS[i].min&&p<RARITY_TIERS[i].max)return i}return 0}
 function getRarityBar(p){return'<div class="rb2" style="background:'+RARITY_TIERS[getTier(p)].color+';color:'+RARITY_TIERS[getTier(p)].color+'"></div>'}
+// Проверяет — должен ли скин мерцать
+function getSkinClass(price){
+  if(price>=20000)return 'legendary'; // Ножи, перчатки, топ
+  if(price>=8000)return 'epic';        // Тайное
+  return '';
+}
+
+// Возвращает цвет для анимации
+function getSkinGlowColor(price){
+  return RARITY_TIERS[getTier(price)].color;
+}
+
+// HTML для искр на легендарках
+function getSparkles(price){
+  if(price<20000)return '';
+  return '<span class="sparkle s1"></span><span class="sparkle s2"></span><span class="sparkle s3"></span><span class="sparkle s4"></span>';
+}
+function getDotaSkinClass(price){
+  if(price>=5500)return 'legendary'; // Immortal, Arcana
+  if(price>=4500)return 'epic';        // Legendary
+  return '';
+}
+
+function getDotaSparkles(price){
+  if(price<5500)return '';
+  return '<span class="sparkle s1"></span><span class="sparkle s2"></span><span class="sparkle s3"></span><span class="sparkle s4"></span>';
+}
 function getRarityColor(price){
   return RARITY_TIERS[getTier(price)].color;
 }
@@ -1736,16 +1987,82 @@ function generateRandomTargets(){
   selectedTo=null;
 }
 function generateShopSkins(){const c=ALL_SKIN_POOL.filter(s=>s.price>=15&&s.price<=45);const r=ALL_SKIN_POOL.filter(s=>s.price>45);for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}currentShopSkins=[...c.slice(0,5),...r.slice(0,7)].map(p=>makeSkinObj(p,nextId++))}
-function loadSkinImages(){fetch('https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json').then(r=>r.json()).then(d=>{d.forEach(i=>{if(i.name&&i.image)imageCache[i.name]=i.image});renderAll();updatePanels();renderCraftSkins();renderDotaAll()}).catch(()=>{})}
+function loadSkinImages(){
+  // Кэш на 24 часа
+  const cached=localStorage.getItem('cs_skin_images_v2');
+  const cachedTime=parseInt(localStorage.getItem('cs_skin_images_v2_time')||'0',10);
+  if(cached && Date.now()-cachedTime < 24*60*60*1000){
+    try{
+      imageCache=JSON.parse(cached);
+      console.log('Картинки из кэша:',Object.keys(imageCache).length);
+      renderAll();updatePanels();renderCraftSkins();renderDotaAll();
+      return;
+    }catch(e){}
+  }
+  
+  fetch('https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json')
+    .then(r=>r.json())
+    .then(d=>{
+      d.forEach(i=>{
+        if(!i.name||!i.image)return;
+        // Кэшируем под несколькими ключами
+        imageCache[i.name]=i.image;
+        // Без ★
+        const noStar=i.name.replace(/^★\s*/,'');
+        imageCache[noStar]=i.image;
+        // Без wear "(Factory New)" и т.д.
+        const noWear=noStar.replace(/\s*\([^)]+\)\s*$/,'').trim();
+        if(noWear && !imageCache[noWear])imageCache[noWear]=i.image;
+      });
+      console.log('Картинки загружены:',Object.keys(imageCache).length);
+      try{
+        localStorage.setItem('cs_skin_images_v2',JSON.stringify(imageCache));
+        localStorage.setItem('cs_skin_images_v2_time',Date.now().toString());
+      }catch(e){}
+      renderAll();updatePanels();renderCraftSkins();renderDotaAll();
+    })
+    .catch(e=>console.warn('Картинки не загрузились:',e));
+}
 function gIS(s){return getIconForBase(s.name)}
-function gSI(s){const k=s.hash||s.full;if(imageCache[k])return'<img class="fsvg" style="width:100%;height:100%;object-fit:contain" src="'+imageCache[k]+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=gIS({name:this.alt})"/>';if(imageCache[s.name])return'<img class="fsvg" style="width:100%;height:100%;object-fit:contain" src="'+imageCache[s.name]+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=gIS({name:this.alt})"/>';return gIS(s)}
+function gSI(s){
+  // Собираем все возможные ключи
+  const keys=[
+    s.hash,
+    s.full,
+    s.name,
+    s.base,
+    s.hash?s.hash.replace(/^★\s*/,''):null,
+    s.name?s.name.replace(/^★\s*/,''):null,
+    s.base?s.base.replace(/^★\s*/,''):null
+  ].filter(Boolean);
+  
+  for(const k of keys){
+    if(imageCache[k]){
+      return'<img class="fsvg" style="width:100%;height:100%;object-fit:contain" src="'+imageCache[k]+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=gIS({name:this.alt})"/>';
+    }
+  }
+  
+  // Не нашли — ищем по подстроке
+  const baseName=(s.base||s.name||'').replace(/^★\s*/,'').trim();
+  if(baseName){
+    const norm=baseName.toLowerCase();
+    for(const key in imageCache){
+      if(key.toLowerCase().includes(norm)){
+        return'<img class="fsvg" style="width:100%;height:100%;object-fit:contain" src="'+imageCache[key]+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=gIS({name:this.alt})"/>';
+      }
+    }
+  }
+  
+  // Ничего не нашли — SVG-заглушка
+  return gIS(s);
+}
 const THUMB_SIZES={1:{w:120,h:90},2:{w:88,h:66},3:{w:72,h:54}};
 function updatePanels(){const fp=document.getElementById('from-panel'),fc=document.getElementById('from-panel-content'),tp=document.getElementById('to-panel'),tc=document.getElementById('to-panel-content');if(selectedFromSkins.length>0){fp.classList.add('a');const sz=THUMB_SIZES[selectedFromSkins.length]||THUMB_SIZES[3];let h='<div class="fst" style="min-height:'+sz.h+'px">';selectedFromSkins.forEach((s,i)=>{h+='<div class="ft" style="width:'+sz.w+'px;height:'+sz.h+'px"><div class="tb">'+(i+1)+'</div>'+gSI(s)+'</div>'});h+='</div><div class="spn" style="margin-bottom:4px;font-size:.65rem">';selectedFromSkins.forEach(s=>{h+='<div style="padding:1px 0">'+s.name+'</div>'});h+='</div><div class="spp">Сумма: '+selectedFromSkins.reduce((s,x)=>s+x.price,0)+' 🪙</div>';fc.innerHTML=h;fc.className=''}else{fp.classList.remove('a');fc.className='spe';fc.innerHTML='Выберите до 3 скинов<br>в инвентаре'}if(selectedTo){tp.classList.add('a');tc.innerHTML='<div class="spi">'+gSI(selectedTo)+'</div><div class="spn">'+selectedTo.name+'</div><div style="display:flex;justify-content:center;width:100%"><div class="spp">'+selectedTo.price+' 🪙</div></div>';tc.className=''}else{tp.classList.remove('a');tc.className='spe';tc.innerHTML='Выберите скин<br>из доступных'}}
-function renderMySkins(){const w=document.getElementById('my-skins-wrap');document.getElementById('my-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const is=selectedFromSkins.some(x=>x.id===s.id);const idx=selectedFromSkins.findIndex(x=>x.id===s.id);h+='<div class="sc2'+(is?' sf':'')+'" onclick="toggleFromSkin('+s.id+',this)"><button class="sell-btn" onclick="event.stopPropagation();sellSkinFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪙">$</button><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+(is?'<div class="sbg">'+(idx+1)+'</div>':'')+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
-function renderTargetSkins(){const w=document.getElementById('target-skins-wrap');document.getElementById('target-count').textContent='('+allTargetSkins.length+')';if(allTargetSkins.length===0){w.innerHTML='<div class="em">Выберите шанс и свои скины — цели появятся здесь</div>';return}let h='<div class="sg">';allTargetSkins.forEach(s=>{h+='<div class="sc2'+(selectedTo&&selectedTo.id===s.id?' st2':'')+'" onclick="selectSkin('+s.id+',this)"><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
-function renderShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин скинов CS2';document.getElementById('shop-bal').innerHTML='<span class="ca">'+currency+'</span> 🪙';let h='';currentShopSkins.forEach(s=>{const cb=currency>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2"><div class="siw2">'+gSI(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2">'+s.price+' 🪙</div><button class="sbb '+(cb?'cb2':'nb2')+'" onclick="buySkin('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+getRarityBar(s.price)+'</div>'});g.innerHTML=h}
+function renderMySkins(){const w=document.getElementById('my-skins-wrap');document.getElementById('my-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const is=selectedFromSkins.some(x=>x.id===s.id);const idx=selectedFromSkins.findIndex(x=>x.id===s.id);h+='<div class="sc2'+(is?' sf':'')+' '+getSkinClass(s.price)+'" style="--leg-color:'+getSkinGlowColor(s.price)+'" onclick="toggleFromSkin('+s.id+',this)">'+getSparkles(s.price)+'<button class="sell-btn" onclick="event.stopPropagation();sellSkinFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪙">$</button><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+(is?'<div class="sbg">'+(idx+1)+'</div>':'')+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
+function renderTargetSkins(){const w=document.getElementById('target-skins-wrap');document.getElementById('target-count').textContent='('+allTargetSkins.length+')';if(allTargetSkins.length===0){w.innerHTML='<div class="em">Выберите шанс и свои скины — цели появятся здесь</div>';return}let h='<div class="sg">';allTargetSkins.forEach(s=>{h+='<div class="sc2'+(selectedTo&&selectedTo.id===s.id?' st2':'')+' '+getSkinClass(s.price)+'" style="--leg-color:'+getSkinGlowColor(s.price)+'" onclick="selectSkin('+s.id+',this)">'+getSparkles(s.price)+'<div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div>'+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
+function renderShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин скинов CS2';document.getElementById('shop-bal').innerHTML='<span class="ca">'+currency+'</span> 🪙';let h='';currentShopSkins.forEach(s=>{const cb=currency>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2 '+getSkinClass(s.price)+'" style="--leg-color:'+getSkinGlowColor(s.price)+'">'+getSparkles(s.price)+'<div class="siw2">'+gSI(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2">'+s.price+' 🪙</div><button class="sbb '+(cb?'cb2':'nb2')+'" onclick="buySkin('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+getRarityBar(s.price)+'</div>'});g.innerHTML=h}
 function renderCraftSlots(){for(let i=0;i<3;i++){const sl=document.getElementById('craft-slot-'+(i+1));const s=craftSkins[i];if(s){const t=RARITY_TIERS[getTier(s.price)];sl.className='cs filled';sl.onclick=function(){removeCraftSkin(s.id)};sl.innerHTML='<div class="csrm">✕</div><div class="csi">'+gSI(s)+'</div><div class="csn">'+s.name+'</div><div class="cst" style="color:'+t.color+'">'+t.name+'</div>'+getRarityBar(s.price)}else{sl.className='cs empty';sl.onclick=null;sl.innerHTML='<div class="csp">+</div>'}}updateCraftResultPreview()}
-function renderCraftSkins(){const w=document.getElementById('craft-inventory-wrap');document.getElementById('craft-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const ic=craftSkins.some(x=>x.id===s.id);const iu=selectedFromSkins.some(x=>x.id===s.id);let cls='',bg='';if(ic){cls=' scr';bg='<div class="sbg cb">'+(craftSkins.findIndex(x=>x.id===s.id)+1)+'</div>'}else if(iu){cls=' sf'}const t=RARITY_TIERS[getTier(s.price)];h+='<div class="sc2'+cls+'" onclick="toggleCraftSkin('+s.id+',this)"><button class="sell-btn" onclick="event.stopPropagation();sellSkinFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪙">$</button><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div><div class="stl" style="color:'+t.color+'">'+t.name+'</div>'+bg+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
+function renderCraftSkins(){const w=document.getElementById('craft-inventory-wrap');document.getElementById('craft-count').textContent='('+mySkins.length+')';if(mySkins.length===0){w.innerHTML='<div class="em">Нет скинов. Купите в магазине!</div>';return}let h='<div class="sg">';mySkins.forEach(s=>{const ic=craftSkins.some(x=>x.id===s.id);const iu=selectedFromSkins.some(x=>x.id===s.id);let cls='',bg='';if(ic){cls=' scr';bg='<div class="sbg cb">'+(craftSkins.findIndex(x=>x.id===s.id)+1)+'</div>'}else if(iu){cls=' sf'}const t=RARITY_TIERS[getTier(s.price)];h+='<div class="sc2'+cls+' '+getSkinClass(s.price)+'" style="--leg-color:'+getSkinGlowColor(s.price)+'" onclick="toggleCraftSkin('+s.id+',this)">'+getSparkles(s.price)+'<button class="sell-btn" onclick="event.stopPropagation();sellSkinFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪙">$</button><div class="siw">'+gSI(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2">'+s.price+'🪙</div><div class="stl" style="color:'+t.color+'">'+t.name+'</div>'+bg+getRarityBar(s.price)+'</div>'});w.innerHTML=h+'</div>'}
 function pickWeightedSkin(pool,totalValue,k){k=k||1.8;const weights=pool.map(s=>{const ratio=s.price/totalValue;return Math.pow(1/Math.max(0.01,ratio),k);});const totalW=weights.reduce((a,b)=>a+b,0);let r=Math.random()*totalW;for(let i=0;i<pool.length;i++){r-=weights[i];if(r<=0)return pool[i];}return pool[pool.length-1];}
 function updateCraftResultPreview(){const p=document.getElementById('craft-result-preview'),tn=document.getElementById('craft-result-tier-name'),st=document.getElementById('craft-result-subtitle'),ic=p.querySelector('.cri'),b=document.getElementById('craft-button');if(craftSkins.length===0){p.className='crp';ic.textContent='❓';tn.textContent='???';tn.style.color='var(--gray-light)';st.textContent='Выберите 3 скина';b.disabled=true;b.textContent='Выберите 3 скина';return;}if(craftSkins.length<3){p.className='crp';ic.textContent='⏳';tn.textContent='???';tn.style.color='var(--gray-light)';st.textContent='Нужно ещё '+(3-craftSkins.length)+' скин(а)';b.disabled=true;b.textContent='Нужно '+(3-craftSkins.length)+' скин(а)';return;}const t=getTier(craftSkins[0].price);const same=craftSkins.every(s=>getTier(s.price)===t);if(!same){p.className='crp locked';ic.textContent='⚠️';tn.textContent='Разная редкость';tn.style.color='var(--red-bright)';st.textContent='Скины должны быть одной редкости';b.disabled=true;b.textContent='Разная редкость';return;}if(t>=RARITY_TIERS.length-1){p.className='crp locked';ic.textContent='🚫';tn.textContent='Максимум';tn.style.color='var(--red-bright)';st.textContent='Достигнут максимальный уровень';b.disabled=true;b.textContent='Максимальный уровень';return;}const nt=RARITY_TIERS[t+1];p.className='crp ready';ic.textContent='✨';tn.textContent=nt.name;tn.style.color=nt.color;const totalValue=craftSkins.reduce((s,x)=>s+x.price,0);const pool=ALL_SKIN_POOL.filter(s=>getTier(s.price)===t+1);if(pool.length>0){const minPrice=Math.min(...pool.map(s=>s.price));const maxPrice=Math.max(...pool.map(s=>s.price));st.innerHTML='Вложено: <b>'+totalValue+' 🪙</b><br><span style="font-size:.55rem;color:var(--gray-light)">Пул: '+minPrice+'–'+maxPrice+' 🪙</span>';}else{st.textContent='Случайный скин';}b.disabled=false;b.textContent='Скрафтить → '+nt.name;}
 function canCraft(){if(craftSkins.length!==3)return false;const t=getTier(craftSkins[0].price);return craftSkins.every(s=>getTier(s.price)===t)&&t<RARITY_TIERS.length-1}
@@ -1773,14 +2090,22 @@ function performCraft(){
     if(navigator.vibrate) navigator.vibrate(30);
   },800);
 }
-function showCraftResult(s,totalValue){const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');const diff=s.price-totalValue;const sign=diff>=0?'+':'';const ratio=s.price/totalValue;let outcome,icon,title,color;if(diff>totalValue*0.2){outcome='win';icon='🎉';title='В плюс!';color='var(--green-bright)';}else if(diff<-totalValue*0.2){outcome='lose';icon='💥';title='В минус...';color='var(--red-bright)';}else if(diff>0){outcome='small-win';icon='✨';title='Небольшой плюс';color='var(--green-bright)';}else if(diff<0){outcome='small-lose';icon='😐';title='Немного в минус';color='var(--orange)';}else{outcome='even';icon='🔨';title='Ровно';color='var(--yellow-bright)';}c.className='rc '+(outcome==='win'||outcome==='small-win'?'s':(outcome==='lose'||outcome==='small-lose'?'f':''));document.getElementById('result-icon').textContent=icon;document.getElementById('result-title').textContent=title;document.getElementById('result-title').style.color=color;document.getElementById('result-subtitle').innerHTML='Получен скин: <b>'+s.name+'</b><br>Цена: <b>'+s.price+' 🪙</b> &nbsp;|&nbsp; Вложено: '+totalValue+' 🪙<br><span style="color:'+color+';font-weight:bold">Разница: '+sign+diff+' 🪙 ('+ratio.toFixed(2)+'x)</span>';document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+s.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';crwonSkinPending=s;eateParticles();o.classList.add('show');}
+function showCraftResult(s,totalValue){const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');const diff=s.price-totalValue;const sign=diff>=0?'+':'';const ratio=s.price/totalValue;let outcome,icon,title,color;if(diff>totalValue*0.2){outcome='win';icon='🎉';title='В плюс!';color='var(--green-bright)';}else if(diff<-totalValue*0.2){outcome='lose';icon='💥';title='В минус...';color='var(--red-bright)';}else if(diff>0){outcome='small-win';icon='✨';title='Небольшой плюс';color='var(--green-bright)';}else if(diff<0){outcome='small-lose';icon='😐';title='Немного в минус';color='var(--orange)';}else{outcome='even';icon='🔨';title='Ровно';color='var(--yellow-bright)';}c.className='rc '+(outcome==='win'||outcome==='small-win'?'s':(outcome==='lose'||outcome==='small-lose'?'f':''));document.getElementById('result-icon').textContent=icon;document.getElementById('result-title').textContent=title;document.getElementById('result-title').style.color=color;document.getElementById('result-subtitle').innerHTML='Получен скин: <b>'+s.name+'</b><br>Цена: <b>'+s.price+' 🪙</b> &nbsp;|&nbsp; Вложено: '+totalValue+' 🪙<br><span style="color:'+color+';font-weight:bold">Разница: '+sign+diff+' 🪙 ('+ratio.toFixed(2)+'x)</span>';document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+s.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';crwonSkinPending=s;createParticles();o.classList.add('show');}
+const TAB_ORDER=['upgrade','craft','dota','dota-craft','casino','roulette','cabinet','wheel','farm','achievements','quests','cases','bank'];
+
 function switchTab(tab){
+  const oldIdx=TAB_ORDER.indexOf(currentTab);
+  const newIdx=TAB_ORDER.indexOf(tab);
+  const goingBack=oldIdx>-1 && newIdx>-1 && newIdx<oldIdx;
+  
   currentTab=tab;
   closeSidebar();
   document.querySelectorAll('.nb[data-tab]').forEach(b=>b.classList.remove('a'));
   const nb=document.querySelector('.nb[data-tab="'+tab+'"]');if(nb)nb.classList.add('a');
-  document.querySelectorAll('.tv').forEach(v=>v.classList.remove('a'));
-  document.getElementById(tab+'-view').classList.add('a');
+  document.querySelectorAll('.tv').forEach(v=>{v.classList.remove('a');v.classList.remove('slide-back');});
+  const view=document.getElementById(tab+'-view');
+  if(goingBack)view.classList.add('slide-back');
+  view.classList.add('a');
   sndTab();
   if(tab==='craft'){renderCraftSlots();renderCraftSkins();}
   else if(tab==='dota'){renderDotaMy();renderDotaTgt();updateDotaUI();dUpdatePanels();}
@@ -1793,6 +2118,7 @@ function switchTab(tab){
   else if(tab==='achievements'){renderAchievements();}
   else if(tab==='quests'){renderQuests();}
   else if(tab==='cases'){renderCases();}
+  else if(tab==='bank'){renderBank();}
   else{renderMySkins();renderTargetSkins();}
 }
 function renderAll(){renderMySkins();renderTargetSkins();renderShop()}
@@ -1980,8 +2306,6 @@ function showResult(win){
 }
 function sellWonSkin(){if(!wonSkinPending)return;sndSell();currency+=wonSkinPending.price;const i=mySkins.findIndex(s=>s.id===wonSkinPending.id);if(i!==-1)mySkins.splice(i,1);wonSkinPending=null;renderMySkins();renderTargetSkins();renderCraftSkins();updateUI();updatePanels();saveGame();renderCabinet();closeResult()}
 function closeResult(){document.getElementById('result-overlay').classList.remove('show');isUpgrading=false;wonSkinPending=null;const ar=document.getElementById('arrow');ar.classList.remove('arrow-spin');ar.style.transform='rotate(180deg)'}
-function createParticles(){const c=document.getElementById('upgrade-circle'),r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const colors=['#FFEB3B','#00E676','#00E5FF','#FF4081','#BA68C8'];const count=window.innerWidth<780?18:28;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='pt';p.style.left=cx+'px';p.style.top=cy+'px';p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 12px '+colors[i%colors.length];const a=(Math.PI*2*i)/count,d=120+Math.random()*180;p.style.setProperty('--tx',Math.cos(a)*d+'px');p.style.setProperty('--ty',Math.sin(a)*d+'px');document.body.appendChild(p);setTimeout(()=>p.remove(),1600)}}
-
 // ===== DOTA 2 SECTION =====
 const DOTA_ITEMS=[
 ['Tango','Common',90,'tango'],['Healing Salve','Common',100,'healing_salve'],['Magic Stick','Common',200,'magic_stick'],['Magic Wand','Common',450,'magic_wand'],['Bracer','Common',505,'bracer'],['Wraith Band','Common',505,'wraith_band'],['Null Talisman','Common',505,'null_talisman'],['Boots of Speed','Common',500,'boots'],['Power Treads','Uncommon',1400,'power_treads'],['Phase Boots','Uncommon',1500,'phase_boots'],['Arcane Boots','Uncommon',1400,'arcane_boots'],['Hand of Midas','Rare',2200,'hand_of_midas'],['Blink Dagger','Rare',2250,'blink'],['Force Staff','Rare',2200,'force_staff'],['Eul’s Scepter of Divinity','Rare',2725,'cyclone'],['Aether Lens','Rare',2275,'aether_lens'],['Dragon Lance','Rare',1900,'dragon_lance'],['Glimmer Cape','Rare',2150,'glimmer_cape'],['Blade Mail','Mythical',2300,'blade_mail'],['Maelstrom','Mythical',2950,'maelstrom'],['Desolator','Mythical',3500,'desolator'],['Orchid Malevolence','Mythical',3275,'orchid'],['Black King Bar','Legendary',4050,'black_king_bar'],['Aghanim’s Scepter','Legendary',4200,'ultimate_scepter'],['Manta Style','Legendary',4600,'manta'],['Sange and Yasha','Legendary',3900,'sange_and_yasha'],['Kaya and Sange','Legendary',4000,'kaya_and_sange'],['Skull Basher','Legendary',2875,'basher'],['Heaven’s Halberd','Legendary',3550,'heavens_halberd'],['Radiance','Legendary',5050,'radiance'],['Butterfly','Legendary',5450,'butterfly'],['Daedalus','Legendary',5150,'greater_crit'],['Satanic','Legendary',5050,'satanic'],['Assault Cuirass','Immortal',5250,'assault'],['Shiva’s Guard','Immortal',5175,'shivas_guard'],['Heart of Tarrasque','Immortal',5200,'heart'],['Eye of Skadi','Immortal',5300,'skadi'],['Mjollnir','Immortal',5600,'mjollnir'],['Monkey King Bar','Immortal',4650,'monkey_king_bar'],['Abyssal Blade','Immortal',6250,'abyssal_blade'],['Silver Edge','Immortal',5550,'silver_edge'],['Bloodthorn','Immortal',6750,'bloodthorn'],['Nullifier','Immortal',4725,'nullifier'],['Butterfly','Immortal',5450,'butterfly'],['Refresher Orb','Immortal',5000,'refresher'],['Octarine Core','Immortal',4500,'octarine_core'],['Moon Shard','Immortal',4000,'moon_shard'],['Wind Waker','Immortal',6200,'wind_waker'],['Disperser','Immortal',5300,'disperser'],['Divine Rapier','Arcana',5950,'rapier'],['Aghanim’s Shard','Arcana',1400,'aghanims_shard']];
@@ -2013,7 +2337,7 @@ function dGenTgt(){
 }
 function dChance(){if(dSelF.length===0||!dSelT)return 0;return dChanceF(dSelF.reduce((s,x)=>s+x.price,0),dSelT.price)}
 function dUpdatePanels(){const fp=document.getElementById('dota-from-panel'),fc=document.getElementById('dota-from-content'),tp=document.getElementById('dota-to-panel'),tc=document.getElementById('dota-to-content');if(dSelF.length>0){fp.classList.add('a');const sz=THUMB_SIZES[dSelF.length]||THUMB_SIZES[3];let h='<div class="fst" style="min-height:'+sz.h+'px">';dSelF.forEach((s,i)=>{h+='<div class="ft" style="width:'+sz.w+'px;height:'+sz.h+'px"><div class="tb rb">'+(i+1)+'</div>'+dIcon(s)+'</div>'});h+='</div><div class="spn" style="margin-bottom:4px;font-size:.65rem">';dSelF.forEach(s=>{h+='<div style="padding:1px 0">'+s.name+'</div>'});h+='</div><div class="spp rp">Сумма: '+dSelF.reduce((s,x)=>s+x.price,0)+' 🪨</div>';fc.innerHTML=h;fc.className=''}else{fp.classList.remove('a');fc.className='spe';fc.innerHTML='Выберите до 3 предметов<br>в инвентаре'}if(dSelT){tp.classList.add('a');tc.innerHTML='<div class="spi">'+dIcon(dSelT)+'</div><div class="spn">'+dSelT.name+'</div><div style="display:flex;justify-content:center;width:100%"><div class="spp rp">'+dSelT.price+' 🪨</div></div>';tc.className=''}else{tp.classList.remove('a');tc.className='spe';tc.innerHTML='Выберите предмет<br>из доступных'}}
-function renderDotaMy(){const w=document.getElementById('dota-my-wrap');document.getElementById('dota-mc').textContent='('+dMy.length+')';if(dMy.length===0){w.innerHTML='<div class="em">Нет предметов. Купите в магазине!</div>';return}let h='<div class="sg">';dMy.forEach(s=>{const is=dSelF.some(x=>x.id===s.id);const idx=dSelF.findIndex(x=>x.id===s.id);const t=DT[dT(s.price)];h+='<div class="sc2 dc'+(is?' dsf':'')+'" onclick="toggleDotaF('+s.id+',this)"><button class="sell-btn rune" onclick="event.stopPropagation();sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+(is?'<div class="sbg rb">'+(idx+1)+'</div>':'')+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
+function renderDotaMy(){const w=document.getElementById('dota-my-wrap');document.getElementById('dota-mc').textContent='('+dMy.length+')';if(dMy.length===0){w.innerHTML='<div class="em">Нет предметов. Купите в магазине!</div>';return}let h='<div class="sg">';dMy.forEach(s=>{const is=dSelF.some(x=>x.id===s.id);const idx=dSelF.findIndex(x=>x.id===s.id);const t=DT[dT(s.price)];h+='<div class="sc2 dc'+(is?' dsf':'')+' '+getDotaSkinClass(s.price)+'" style="--leg-color:'+getDotaRarityColor(s.price)+'" onclick="toggleDotaF('+s.id+',this)">'+getDotaSparkles(s.price)+'<button class="sell-btn rune" onclick="event.stopPropagation();sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+(is?'<div class="sbg rb">'+(idx+1)+'</div>':'')+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
   if(wonSkinPending){
     const cards=w.querySelectorAll('.sc2');
     cards.forEach(card=>{
@@ -2023,7 +2347,7 @@ function renderDotaMy(){const w=document.getElementById('dota-my-wrap');document
     });
   }
 }
-function renderDotaTgt(){const w=document.getElementById('dota-tgt-wrap');document.getElementById('dota-tc').textContent='('+dTgt.length+')';if(dTgt.length===0){w.innerHTML='<div class="em">Выберите шанс и предметы — цели появятся здесь</div>';return}let h='<div class="sg">';dTgt.forEach(s=>{const sel=dSelT&&dSelT.id===s.id?' st2':'';const t=DT[dT(s.price)];h+='<div class="sc2 dc'+sel+'" onclick="selDota('+s.id+',this)"><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
+function renderDotaTgt(){const w=document.getElementById('dota-tgt-wrap');document.getElementById('dota-tc').textContent='('+dTgt.length+')';if(dTgt.length===0){w.innerHTML='<div class="em">Выберите шанс и предметы — цели появятся здесь</div>';return}let h='<div class="sg">';dTgt.forEach(s=>{const sel=dSelT&&dSelT.id===s.id?' st2':'';const t=DT[dT(s.price)];h+='<div class="sc2 dc'+sel+' '+getDotaSkinClass(s.price)+'" style="--leg-color:'+getDotaRarityColor(s.price)+'" onclick="selDota('+s.id+',this)">'+getDotaSparkles(s.price)+'<div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
   if(typeof dWon!=='undefined' && dWon){
     const cards=w.querySelectorAll('.sc2');
     cards.forEach(card=>{
@@ -2134,7 +2458,7 @@ function sellDotaWon(){if(!dWon)return;sndSell();dCur+=dWon.price;const i=dMy.fi
 function closeDotaResult(){document.getElementById('result-overlay').classList.remove('show');dUpg=false;dWon=null;const ar=document.getElementById('dota-arrow');ar.classList.remove('arrow-spin');ar.style.transform='rotate(180deg)'}
 function createDotaParticles(){const c=document.getElementById('dota-circle'),r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const colors=['#C6FF00','#00E676','#00E5FF','#ADE55C','#69F0AE'];const count=window.innerWidth<780?18:28;for(let i=0;i<count;i++){const p=document.createElement('div');p.className='pt';p.style.left=cx+'px';p.style.top=cy+'px';p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 12px '+colors[i%colors.length];const a=(Math.PI*2*i)/count,d=120+Math.random()*180;p.style.setProperty('--tx',Math.cos(a)*d+'px');p.style.setProperty('--ty',Math.sin(a)*d+'px');document.body.appendChild(p);setTimeout(()=>p.remove(),1600)}}
 function generateDotaShop(){const c=DOTA_POOL.filter(s=>s.price>=90&&s.price<=505);const r=DOTA_POOL.filter(s=>s.price>505);for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}dShopItems=[...c.slice(0,5),...r.slice(0,7)].map(p=>dMake(p))}
-function renderDotaShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин предметов Dota 2';document.getElementById('shop-bal').innerHTML='<span class="ra">'+dCur+'</span> 🪨';let h='';dShopItems.forEach(s=>{const cb=dCur>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2 di2"><div class="siw2">'+dIcon(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2 rt">'+s.price+' 🪨</div><button class="sbb '+(cb?'rb2':'nb2')+'" onclick="buyDotaItem('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+dBar(s.price)+'</div>'});g.innerHTML=h}
+function renderDotaShop(){const g=document.getElementById('shop-grid');document.getElementById('shop-title').textContent='🛒 Магазин предметов Dota 2';document.getElementById('shop-bal').innerHTML='<span class="ra">'+dCur+'</span> 🪨';let h='';dShopItems.forEach(s=>{const cb=dCur>=s.price;const safeName=(s.name||'').replace(/"/g,'&quot;');h+='<div class="si2 di2 '+getDotaSkinClass(s.price)+'" style="--leg-color:'+getDotaRarityColor(s.price)+'">'+getDotaSparkles(s.price)+'<div class="siw2">'+dIcon(s)+'</div><div class="sin2" title="'+safeName+'">'+s.name+'</div><div class="sip2 rt">'+s.price+' 🪨</div><button class="sbb '+(cb?'rb2':'nb2')+'" onclick="buyDotaItem('+s.id+',this)" '+(cb?'':'disabled')+'>'+(cb?'Купить':'Не хватает')+'</button>'+dBar(s.price)+'</div>'});g.innerHTML=h}
 function buyDotaItem(id,btn){const s=dShopItems.find(x=>x.id===id);if(!s)return;if(dCur<s.price){showToast('Недостаточно рун!',true);sndToastError();return}dCur-=s.price;window.__stats.totalSpent=(window.__stats.totalSpent||0)+s.price;dMy.push({id:dNext++,name:s.name,full:s.full,price:s.price,hash:s.hash,type:s.type,star:s.star,icon:s.icon});btn.classList.add('p');setTimeout(()=>btn.classList.remove('p'),250);sndBuy();showToast('Куплен предмет: '+s.name);btn.style.setProperty('--glow-color',getDotaRarityColor(s.price));
 btn.classList.add('buy-flash');
 setTimeout(()=>btn.classList.remove('buy-flash'),1000);renderDotaMy();renderDotaTgt();updateDotaUI();renderDotaShop();dRenderCraftInventory();saveGame();renderCabinet()}
@@ -2165,7 +2489,7 @@ function dRenderCraftInventory(){
     if(ic){cls=' scr';bg='<div class="sbg cb">'+(dCraftItems.findIndex(x=>x.id===s.id)+1)+'</div>';}
     else if(iu){cls=' dsf';}
     const t=DT[dT(s.price)];
-    h+='<div class="sc2 dc'+cls+'" onclick="dToggleCraftItem('+s.id+',this)"><button class="sell-btn rune" onclick="event.stopPropagation();sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+bg+dBar(s.price)+'</div>';
+    h+='<div class="sc2 dc'+cls+' '+getDotaSkinClass(s.price)+'" style="--leg-color:'+getDotaRarityColor(s.price)+'" onclick="dToggleCraftItem('+s.id+',this)">'+getDotaSparkles(s.price)+'<button class="sell-btn rune" onclick="event.stopPropagation();sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+bg+dBar(s.price)+'</div>';
   });
   w.innerHTML=h+'</div>';
 }
@@ -3053,13 +3377,127 @@ function showLevelUpToast(l){
     setTimeout(()=>t.remove(),500);
   },2200);
 }
+// ===== БАНК =====
+const BANK_KEY='cs2_dota_bank';
+let bankData={deposit:0,startTime:0,withdrawn:0};
+
+function getBankKey(){return currentUser?`${BANK_KEY}_${currentUser.login}`:`${BANK_KEY}_guest`;}
+
+function bankLoad(){
+  try{
+    const raw=localStorage.getItem(getBankKey());
+    if(raw)bankData=JSON.parse(raw);
+    if(!bankData.deposit)bankData={deposit:0,startTime:0,withdrawn:0};
+  }catch(e){bankData={deposit:0,startTime:0,withdrawn:0};}
+}
+
+function bankSave(){
+  try{localStorage.setItem(getBankKey(),JSON.stringify(bankData));}catch(e){}
+}
+
+function bankMaxLimit(){
+  return 100000*getLevel().lvl;
+}
+
+function bankCurrentValue(){
+  if(!bankData.deposit || !bankData.startTime)return 0;
+  const hours=(Date.now()-bankData.startTime)/(1000*60*60);
+  const interest=Math.floor(bankData.deposit*0.01*hours);
+  return bankData.deposit+interest;
+}
+
+function bankInterestEarned(){
+  if(!bankData.deposit || !bankData.startTime)return 0;
+  const hours=(Date.now()-bankData.startTime)/(1000*60*60);
+  return Math.floor(bankData.deposit*0.01*hours);
+}
+function bankAdjust(delta){
+  const input=document.getElementById('bank-amount-input');
+  let val=parseInt(input.value,10)||0;
+  val=Math.max(0,val+delta);
+  input.value=val;
+}
+function bankSetAmount(amount){
+  const input=document.getElementById('bank-amount-input');
+  if(input)input.value=Math.floor(amount);
+}
+
+function bankDeposit(){
+  const input=document.getElementById('bank-amount-input');
+  const amount=parseInt(input.value,10)||0;
+  const limit=bankMaxLimit();
+  const already=bankData.deposit||0;
+  if(amount<1000){showToast('Минимум 1 000 🪙',true);sndToastError();return;}
+  if(amount>currency){showToast('Недостаточно монет!',true);sndToastError();return;}
+  if(already+amount>limit){showToast('Лимит вклада: '+limit+' 🪙',true);sndToastError();return;}
+
+  // Если вклад уже есть — сначала считаем проценты и объединяем
+  const oldInterest=bankInterestEarned();
+  const oldTotal=bankData.deposit+oldInterest;
+  currency-=amount;
+  bankData.deposit=oldTotal+amount;
+  bankData.startTime=Date.now();
+  bankData.withdrawn=0;
+  bankSave();
+  sndBuy();
+  if(navigator.vibrate)navigator.vibrate([15,30,15]);
+  showToast(`💰 Вклад: +${amount} 🪙`);
+  input.value='';
+  updateUI();renderBank();renderCabinet();
+}
+
+function bankWithdraw(){
+  if(!bankData.deposit)return;
+  const total=bankCurrentValue();
+  const interest=bankInterestEarned();
+  currency+=total;
+  bankData={deposit:0,startTime:0,withdrawn:0};
+  bankSave();
+  sndWin();
+  if(navigator.vibrate)navigator.vibrate([30,50,30]);
+  showToast(`💰 Забрано: +${total} 🪙 (проценты: +${interest} 🪙)`);
+  addHistory('bank','win',`Банк: снятие +${total} 🪙 (проценты +${interest} 🪙)`);
+  updateUI();renderBank();renderCabinet();saveGame();
+}
+
+function renderBank(){
+  const storedEl=document.getElementById('bank-stored');
+  if(!storedEl)return;
+  const limit=bankMaxLimit();
+  document.getElementById('bank-limit').textContent=limit.toLocaleString('ru-RU');
+
+  if(!bankData.deposit){
+    storedEl.textContent='0';
+    document.getElementById('bank-rate').textContent='+0 🪙/час';
+    document.getElementById('bank-info').textContent='Вклад пуст';
+    document.getElementById('bank-progress').style.width='0%';
+    document.getElementById('bank-withdraw-btn').style.display='none';
+    return;
+  }
+
+  const total=bankCurrentValue();
+  const interest=bankInterestEarned();
+  const hours=(Date.now()-bankData.startTime)/(1000*60*60);
+  storedEl.textContent=total.toLocaleString('ru-RU');
+  document.getElementById('bank-rate').textContent=`+${Math.floor(bankData.deposit*0.01).toLocaleString('ru-RU')} 🪙/час`;
+  document.getElementById('bank-info').textContent=`Вклад: ${bankData.deposit.toLocaleString('ru-RU')} 🪙 · Проценты: +${interest.toLocaleString('ru-RU')} 🪙 · Время: ${hours.toFixed(1)}ч`;
+  // Прогресс-бар —% от лимита
+  const pct=Math.min(100,Math.round(total/limit*100));
+  document.getElementById('bank-progress').style.width=pct+'%';
+  document.getElementById('bank-withdraw-btn').style.display='';
+}
+
+// Обновление банка раз в секунду, если вклад есть
+setInterval(()=>{
+  if(bankData.deposit && currentTab==='bank')renderBank();
+},1000);
 // ===== КЕЙСЫ =====
 const CASES=[
   {id:'bronze',icon:'🥉',name:'Бронзовый кейс',price:500,color:'#cd7f32',tiers:[0,1]},
-  {id:'silver',icon:'🥈',name:'Серебряный кейс',price:2000,color:'#c0c0c0',tiers:[1,2]},
-  {id:'gold',icon:'🥇',name:'Золотой кейс',price:8000,color:'#FFD700',tiers:[2,3]},
-  {id:'diamond',icon:'💎',name:'Алмазный кейс',price:25000,color:'#00E5FF',tiers:[3,4]},
-  {id:'legend',icon:'👑',name:'Легендарный кейс',price:50000,color:'#FF4081',tiers:[4,5,6]},
+  {id:'silver',icon:'🥈',name:'Серебряный кейс',price:1500,color:'#c0c0c0',tiers:[1,2]},
+  {id:'gold',icon:'🥇',name:'Золотой кейс',price:5000,color:'#FFD700',tiers:[2,3]},
+  {id:'diamond',icon:'💎',name:'Алмазный кейс',price:10000,color:'#00E5FF',tiers:[3,4]},
+  {id:'legend',icon:'👑',name:'Легендарный кейс',price:20000,color:'#FF4081',tiers:[4,5,6]},
 ];
 let caseSpinning=false;
 let caseWonSkin=null;
@@ -3119,7 +3557,23 @@ function openCase(caseId){
   // Собираем 50 случайных скинов для рулетки
   const reel=[];
   for(let i=0;i<50;i++)reel.push(makeSkinObj(weighted[Math.floor(Math.random()*weighted.length)], nextId++));
-  const winner=weighted[Math.floor(Math.random()*weighted.length)];
+  // === ГАРАНТИЯ МИНИМУМА ===
+let winner=weighted[Math.floor(Math.random()*weighted.length)];
+const minPrice=Math.floor(c.price*0.3); // минимум 50% от цены кейса
+let attempts=0;
+while(winner.price<minPrice && attempts<20){
+  const newWinner=weighted[Math.floor(Math.random()*weighted.length)];
+  if(newWinner.price>=minPrice){
+    winner=newWinner;
+    break;
+  }
+  attempts++;
+}
+// Если всё равно дешёвый — ищем самый дорогой в пуле
+if(winner.price<minPrice){
+  const sorted=[...weighted].sort((a,b)=>b.price-a.price);
+  winner=sorted[0];
+}
   reel[43]=makeSkinObj(winner, nextId++);
   caseWonSkin=reel[43];
 
@@ -3128,11 +3582,14 @@ function openCase(caseId){
   roulette.style.transform='translateX(0)';
   roulette.innerHTML=reel.map(s=>{
     const t=RARITY_TIERS[getTier(s.price)];
-    return `<div style="flex-shrink:0;width:140px;height:180px;background:linear-gradient(135deg,rgba(60,60,90,.6),rgba(40,40,60,.6));border:2px solid ${t.color};border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;box-shadow:0 0 15px ${t.color}60">
-      <div style="width:100%;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:8px">${gSI(s)}</div>
-            <div style="font-size:.6rem;color:#e0e0e8;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%">${s.name}</div>
-      <div style="font-size:.6rem;color:${t.color};font-weight:bold;margin-top:4px">${s.price}🪙</div>
-    </div>`;
+    const legClass=s.price>=20000?'legendary':(s.price>=8000?'epic':'');
+const sparkles=s.price>=20000?'<span class="sparkle s1"></span><span class="sparkle s2"></span><span class="sparkle s3"></span><span class="sparkle s4"></span>':'';
+return `<div class="${legClass}" style="flex-shrink:0;width:140px;height:180px;background:linear-gradient(135deg,rgba(60,60,90,.6),rgba(40,40,60,.6));border:2px solid ${t.color};border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;box-shadow:0 0 15px ${t.color}60;position:relative;--leg-color:${t.color}">
+  ${sparkles}
+  <div style="width:100%;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative;z-index:1">${gSI(s)}</div>
+  <div style="font-size:.6rem;color:#e0e0e8;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;position:relative;z-index:1">${s.name}</div>
+  <div style="font-size:.6rem;color:${t.color};font-weight:bold;margin-top:4px;position:relative;z-index:1">${s.price}🪙</div>
+</div>`;
   }).join('');
 
   // Анимация
@@ -3582,6 +4039,7 @@ function renderFarm(){
 setInterval(()=>{if(currentTab==='farm')renderFarm();else farmTick();},5000);
 setInterval(farmSave,15000);
 // ===== BOOT =====
+loadTheme();
 updateUserProfile();
 if(tryAutoLogin()){
   updateUserProfile();
@@ -3601,7 +4059,7 @@ generateShopSkins();renderAll();updateUI();updatePanels();
 renderCraftSlots();renderCraftSkins();renderDotaAll();
 updateDailyBtn();loadSkinImages();renderCabinet();updateCasinoUI();
 drawWheel();updateWheelCooldown();farmLoad();farmTick();drawRoulette();updateRouletteUI();
-loadAchievements();updateAchCounter();loadXP();updateLevelUI();
+loadAchievements();updateAchCounter();loadXP();updateLevelUI();bankLoad();
 setInterval(saveGame, 15000);
 setInterval(updateDailyBtn, 60000);
 </script>
