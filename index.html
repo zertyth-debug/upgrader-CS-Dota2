@@ -453,6 +453,10 @@ h1{text-align:center;text-transform:uppercase;letter-spacing:3px;margin:0 0 16px
 .auth-guest{margin-top:12px;text-align:center}
 .auth-guest button{background:transparent;border:1.5px solid rgba(255,255,255,.15);color:#c0c0d8;padding:10px 24px;border-radius:10px;font-weight:bold;font-size:.78rem;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s;font-family:inherit}
 .auth-guest button:hover{border-color:var(--purple-bright);color:#fff;background:rgba(186,104,200,.1)}
+.music-toggle{position:fixed;top:16px;right:128px;z-index:100;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.music-toggle.on{border-color:#BA68C8;box-shadow:0 0 20px rgba(155,89,182,.6);animation:musicPulse 1.5s ease-in-out infinite}
+.music-toggle:hover{border-color:#BA68C8;transform:scale(1.12)}
+@keyframes musicPulse{0%,100%{box-shadow:0 0 20px rgba(155,89,182,.6)}50%{box-shadow:0 0 32px rgba(155,89,182,.9)}}
 .theme-toggle{position:fixed;top:16px;right:72px;z-index:100;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.3)}
 .theme-toggle:hover{border-color:var(--yellow-bright);transform:scale(1.12) rotate(-8deg);box-shadow:0 0 24px rgba(255,215,0,.5)}
 .stg{position:fixed;top:16px;right:16px;z-index:100;background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.3)}
@@ -866,6 +870,7 @@ body.light .exchange-btn:disabled{opacity:.5}
 
 <div class="stg" onclick="toggleSound()">🔊</div>
 <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Сменить тему">🌙</div>
+<div class="music-toggle" id="music-toggle" onclick="toggleMusic()" title="Музыка">🎵</div>
 <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">→</button>
 <div class="aw">
   <div class="sb">
@@ -1659,27 +1664,142 @@ function renderCabinet(){
     </div>`;
 }
 
-// ===== AUDIO =====
-let audioCtx=null,soundEnabled=true,masterGain=null;
-function initAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.55;masterGain.connect(audioCtx.destination);}catch(e){}}}
-function pt2(f,d,t,v,w){if(!soundEnabled||!audioCtx||!masterGain)return;const tm=audioCtx.currentTime+(w||0);const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type=t||'sine';o.frequency.setValueAtTime(f,tm);g.gain.setValueAtTime(0,tm);g.gain.linearRampToValueAtTime((v||.12)*.70,tm+Math.min(.035,d*.35));g.gain.exponentialRampToValueAtTime(.001,tm+d);o.connect(g);g.connect(masterGain);o.start(tm);o.stop(tm+d);}
-function pn(d,v,ff){if(!soundEnabled||!audioCtx||!masterGain)return;const t=audioCtx.currentTime;const bs=Math.max(1,Math.floor(audioCtx.sampleRate*d));const b=audioCtx.createBuffer(1,bs,audioCtx.sampleRate);const da=b.getChannelData(0);for(let i=0;i<bs;i++)da[i]=Math.random()*2-1;const n=audioCtx.createBufferSource();n.buffer=b;const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(ff||700,t);const g=audioCtx.createGain();g.gain.setValueAtTime((v||.04)*.45,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(f);f.connect(g);g.connect(masterGain);n.start(t);n.stop(t+d);}
-function sndSelect(){initAudio();pt2(660,.11,'sine',.07);pt2(880,.14,'sine',.045,.035)}
-function sndDeselect(){initAudio();pt2(440,.12,'sine',.06)}
-function sndUpgradeStart(){initAudio();pt2(220,.28,'sine',.08);pt2(165,.34,'sine',.055,.07)}
-function sndTick(){initAudio();pt2(520,.055,'sine',.035)}
-function sndRouletteStop(){
-  initAudio();
-  pt2(880,.12,'sine',.1);
-  pt2(1320,.18,'sine',.08,.06);
+// ===== AUDIO (улучшенный — тёплые звуки) =====
+let audioCtx=null,soundEnabled=true,masterGain=null,reverbNode=null,delayNode=null;
+
+function initAudio(){
+  if(audioCtx)return;
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    masterGain=audioCtx.createGain();
+    masterGain.gain.value=.5;
+    // Компрессор — сглаживает пики, звук плотнее
+    const comp=audioCtx.createDynamicsCompressor();
+    comp.threshold.value=-14;comp.knee.value=20;comp.ratio.value=4;comp.attack.value=.003;comp.release.value=.25;
+    masterGain.connect(comp);comp.connect(audioCtx.destination);
+    // Реверберация
+    const rate=audioCtx.sampleRate,len=Math.floor(rate*2.2);
+    const impulse=audioCtx.createBuffer(2,len,rate);
+    for(let ch=0;ch<2;ch++){const d=impulse.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.2);}
+    reverbNode=audioCtx.createConvolver();reverbNode.buffer=impulse;
+    const rv=audioCtx.createGain();rv.gain.value=.22;
+    reverbNode.connect(rv);rv.connect(masterGain);
+    // Эхо
+    delayNode=audioCtx.createDelay(1);delayNode.delayTime.value=.2;
+    const fb=audioCtx.createGain();fb.gain.value=.25;
+    const dg=audioCtx.createGain();dg.gain.value=.18;
+    delayNode.connect(fb);fb.connect(delayNode);delayNode.connect(dg);dg.connect(masterGain);
+  }catch(e){}
 }
+
+// БАЗОВАЯ нота с мягкой атакой
+function pt2(f,d,t,v,w,useRev,useDly){
+  if(!soundEnabled||!audioCtx||!masterGain)return;
+  const tm=audioCtx.currentTime+(w||0);
+  const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+  o.type=t||'sine';o.frequency.setValueAtTime(f,tm);
+  g.gain.setValueAtTime(0,tm);
+  g.gain.linearRampToValueAtTime((v||.12)*.7,tm+Math.min(.02,d*.3));
+  g.gain.exponentialRampToValueAtTime(.0001,tm+d);
+  o.connect(g);g.connect(masterGain);
+  if(useRev&&reverbNode)g.connect(reverbNode);
+  if(useDly&&delayNode)g.connect(delayNode);
+  o.start(tm);o.stop(tm+d+.05);
+}
+
+// 🌟 ТЁПЛЫЙ ТОН — слоёный из 4 осцилляторов с расстройкой
+// Именно это убирает «8-битность» и делает звук «живым»
+function richTone(freq,dur,vol,when,baseType){
+  if(!soundEnabled||!audioCtx||!masterGain)return;
+  const tm=audioCtx.currentTime+(when||0);
+  const type=baseType||'sine';
+  const layers=[
+    {detune:0,   gain:1.0, type:type},
+    {detune:+7,  gain:0.4, type:'triangle'},
+    {detune:-7,  gain:0.4, type:'triangle'},
+    {detune:+12, gain:0.22,type:'sine'}
+  ];
+  layers.forEach(L=>{
+    const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+    o.type=L.type;o.frequency.setValueAtTime(freq,tm);o.detune.setValueAtTime(L.detune,tm);
+    g.gain.setValueAtTime(0,tm);
+    g.gain.linearRampToValueAtTime(vol*L.gain,tm+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,tm+dur);
+    o.connect(g);g.connect(masterGain);
+    if(reverbNode)g.connect(reverbNode);
+    o.start(tm);o.stop(tm+dur+.05);
+  });
+}
+
+// 🔔 FM-КОЛОКОЛЬЧИК — реалистичный bell-звук
+function bellTone(freq,dur,vol,when){
+  if(!soundEnabled||!audioCtx||!masterGain)return;
+  const tm=audioCtx.currentTime+(when||0);
+  const carrier=audioCtx.createOscillator();
+  const modulator=audioCtx.createOscillator();
+  const modGain=audioCtx.createGain();
+  const g=audioCtx.createGain();
+  carrier.type='sine';modulator.type='sine';
+  carrier.frequency.setValueAtTime(freq,tm);
+  modulator.frequency.setValueAtTime(freq*2.76,tm);
+  modGain.gain.setValueAtTime(freq*1.4,tm);
+  modGain.gain.exponentialRampToValueAtTime(1,tm+dur*.8);
+  modulator.connect(modGain);modGain.connect(carrier.frequency);
+  g.gain.setValueAtTime(0,tm);
+  g.gain.linearRampToValueAtTime(vol,tm+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,tm+dur);
+  carrier.connect(g);g.connect(masterGain);
+  if(reverbNode)g.connect(reverbNode);
+  modulator.start(tm);carrier.start(tm);
+  modulator.stop(tm+dur+.05);carrier.stop(tm+dur+.05);
+}
+
+function pn(d,v,ff,useRev){
+  if(!soundEnabled||!audioCtx||!masterGain)return;
+  const t=audioCtx.currentTime;
+  const bs=Math.max(1,Math.floor(audioCtx.sampleRate*d));
+  const b=audioCtx.createBuffer(1,bs,audioCtx.sampleRate);
+  const da=b.getChannelData(0);
+  for(let i=0;i<bs;i++)da[i]=Math.random()*2-1;
+  const n=audioCtx.createBufferSource();n.buffer=b;
+  const f=audioCtx.createBiquadFilter();
+  f.type='lowpass';f.frequency.setValueAtTime(ff||700,t);
+  const g=audioCtx.createGain();
+  g.gain.setValueAtTime((v||.04)*.45,t);
+  g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  n.connect(f);f.connect(g);g.connect(masterGain);
+  if(useRev&&reverbNode)g.connect(reverbNode);
+  n.start(t);n.stop(t+d);
+}
+
+// === UI-звуки (мягкие) ===
+function sndClick(){initAudio();richTone(1047,.06,.04);}
+function sndSelect(){initAudio();richTone(880,.1,.055);richTone(1319,.15,.045,.05);}
+function sndDeselect(){initAudio();richTone(587,.1,.05);}
+function sndTab(){initAudio();bellTone(1047,.15,.05);}
+function sndToastError(){initAudio();richTone(349,.15,.05);richTone(262,.25,.05,.08);}
+
+// === Игровые звуки ===
+function sndTick(){initAudio();richTone(1319,.04,.03);}
+
+// 🎉 ЯРКИЙ ЗВУК АПГРЕЙДА — восходящее мажорное арпеджио
+function sndUpgradeStart(){
+  initAudio();
+  // Весёлое восходящее C-E-G-C-E-G
+  const notes=[523,659,784,1047,1319,1568];
+  notes.forEach((n,i)=>richTone(n,.4,.065,i*.055));
+  // Лёгкий whoosh вверх
+  pn(.5,.02,3500,true);
+  bellTone(2093,.5,.04,.35);
+}
+
+function sndRouletteStop(){initAudio();bellTone(1047,.4,.08);bellTone(1568,.5,.06,.1);bellTone(2093,.6,.04,.2);}
+
 function sndBallTick(){
   if(!soundEnabled||!audioCtx||!masterGain)return;
   initAudio();
   const t=audioCtx.currentTime;
-  // Короткий «тук» — резкий писк + шум, как шарик по дереву
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
+  const o=audioCtx.createOscillator();const g=audioCtx.createGain();
   o.type='triangle';
   o.frequency.setValueAtTime(900+Math.random()*400,t);
   o.frequency.exponentialRampToValueAtTime(400,t+.04);
@@ -1688,28 +1808,211 @@ function sndBallTick(){
   g.gain.exponentialRampToValueAtTime(.001,t+.05);
   o.connect(g);g.connect(masterGain);
   o.start(t);o.stop(t+.06);
-  // Лёгкий «стук» — низкий шум
   const bs=Math.max(1,Math.floor(audioCtx.sampleRate*.025));
   const b=audioCtx.createBuffer(1,bs,audioCtx.sampleRate);
   const da=b.getChannelData(0);
   for(let i=0;i<bs;i++)da[i]=(Math.random()*2-1)*(1-i/bs);
-  const n=audioCtx.createBufferSource();
-  n.buffer=b;
+  const n=audioCtx.createBufferSource();n.buffer=b;
   const f=audioCtx.createBiquadFilter();
   f.type='bandpass';f.frequency.setValueAtTime(2000,t);f.Q.value=2;
   const ng=audioCtx.createGain();
-  ng.gain.setValueAtTime(.04,t);
-  ng.gain.exponentialRampToValueAtTime(.001,t+.03);
+  ng.gain.setValueAtTime(.04,t);ng.gain.exponentialRampToValueAtTime(.001,t+.03);
   n.connect(f);f.connect(ng);ng.connect(masterGain);
   n.start(t);n.stop(t+.03);
 }
-function sndWin(){initAudio();pt2(523,.22,'sine',.09);pt2(659,.24,'sine',.085,.13);pt2(784,.28,'sine',.10,.27);pt2(1047,.42,'sine',.12,.43)}
-function sndFail(){initAudio();pt2(220,.28,'sine',.07);pt2(165,.38,'sine',.055,.12);pn(.38,.025,650)}
-function sndCraft(){initAudio();pt2(392,.16,'sine',.065);pt2(494,.18,'sine',.065,.10);pt2(587,.20,'sine',.07,.21);pt2(784,.30,'sine',.08,.33)}
-function sndBuy(){initAudio();pt2(659,.16,'sine',.075);pt2(880,.22,'sine',.09,.10)}
-function sndSell(){initAudio();pt2(587,.16,'sine',.065);pt2(440,.22,'sine',.075,.10)}
-function sndTab(){initAudio();pt2(523,.10,'sine',.055);pt2(659,.13,'sine',.045,.045)}
-function sndToastError(){initAudio();pt2(330,.16,'sine',.055);pt2(247,.20,'sine',.045,.08)}
+
+function sndWin(){
+  initAudio();
+  // Восходящее мажорное арпеджио + финальный аккорд
+  [523,659,784,1047,1319].forEach((n,i)=>richTone(n,.4,.08,i*.08));
+  [523,659,784,1047].forEach(n=>richTone(n,1.0,.06,.5));
+  bellTone(1568,.9,.05,.55);
+  bellTone(2093,.8,.035,.65);
+}
+
+function sndFail(){
+  initAudio();
+  // Мягкие грустные нисходящие, но тёплые — не резкие
+  richTone(440,.3,.06,0,'triangle');
+  richTone(349,.4,.055,.12,'triangle');
+  richTone(262,.6,.05,.24,'triangle');
+  pn(.5,.025,400,true);
+}
+
+function sndCraft(){
+  initAudio();
+  [784,988,1175,1568].forEach((n,i)=>richTone(n,.3,.07,i*.08));
+  bellTone(1975,.7,.06,.4);
+}
+
+function sndBuy(){
+  initAudio();
+  richTone(880,.15,.07);
+  richTone(1175,.2,.07,.1);
+  bellTone(1568,.4,.06,.2);
+}
+
+function sndSell(){
+  initAudio();
+  [1319,1568,1760,2093].forEach((n,i)=>richTone(n,.15,.05,i*.05));
+  bellTone(2637,.4,.035,.25);
+}
+
+// ===== ФОНОВАЯ МУЗЫКА =====
+const BG_TRACKS=[
+  'https://cdn.pixabay.com/download/audio/2022/06/25/audio_4ca472b499.mp3?filename=lofi-vibes-113884.mp3',
+  'https://cdn.pixabay.com/download/audio/2022/01/04/audio_76201dc554.mp3',
+  'https://cdn.pixabay.com/download/audio/2022/11/23/audio_af8f60c3a6.mp3?filename=deep-in-the-dell-126916.mp3',
+  'https://cdn.pixabay.com/download/audio/2025/11/18/audio_f7e5616e05.mp3?filename=chill-lofi-vlog-relaxing-background-hip-hop-beat-438699.mp3',
+  'https://cdn.pixabay.com/download/audio/2025/02/07/audio_f6bfe6b613.mp3?filename=cyberwave-orchestra-sneaky-bass-cool-background-music-298102.mp3'
+];
+
+let bgAudio = null;
+let musicOn = false;
+let currentTrackIdx = -1;
+let musicFadeTimer = null;
+
+function startMusic(){
+  if(musicOn) return;
+  musicOn = true;
+
+  // Случайный трек, но не тот же самый
+  let idx;
+  do { idx = Math.floor(Math.random() * BG_TRACKS.length); }
+  while (BG_TRACKS.length > 1 && idx === currentTrackIdx);
+  currentTrackIdx = idx;
+
+  // Создаём новый Audio. Старый к этому моменту уже должен быть null.
+  bgAudio = new Audio(BG_TRACKS[idx]);
+  bgAudio.loop = false;
+  bgAudio.volume = 0;
+
+  bgAudio.play().catch(e => console.warn('Музыка не запустилась:', e));
+
+  // Плавное появление
+  if(musicFadeTimer){ clearInterval(musicFadeTimer); musicFadeTimer = null; }
+  let v = 0;
+  musicFadeTimer = setInterval(() => {
+    if(!bgAudio){ clearInterval(musicFadeTimer); musicFadeTimer = null; return; }
+    v += 0.01;
+    if(v >= 0.12){ v = 0.12; clearInterval(musicFadeTimer); musicFadeTimer = null; }
+    bgAudio.volume = v;
+  }, 100);
+
+  // Трек закончился — запускаем следующий
+  bgAudio.addEventListener('ended', () => {
+    bgAudio = null;
+    musicOn = false;   // сбрасываем флаг, иначе startMusic выйдет по guard-условию
+    if(localStorage.getItem('cs2_dota_music') === 'on'){
+      startMusic();
+    }
+  });
+}
+
+function stopMusic(){
+  if(!musicOn && !bgAudio) return;
+  musicOn = false;
+
+  if(musicFadeTimer){ clearInterval(musicFadeTimer); musicFadeTimer = null; }
+
+  // ВАЖНО: сразу обнуляем ссылку, чтобы startMusic не накладывался на старый трек
+  const oldAudio = bgAudio;
+  bgAudio = null;
+
+  if(oldAudio){
+    let v = oldAudio.volume;
+    const fade = setInterval(() => {
+      v -= 0.03;
+      if(v <= 0){
+        clearInterval(fade);
+        try { oldAudio.pause(); oldAudio.currentTime = 0; } catch(e){}
+        return;
+      }
+      oldAudio.volume = Math.max(0, v);
+    }, 100);
+  }
+}
+
+function toggleMusic(){
+  const btn = document.getElementById('music-toggle');
+  if(musicOn){
+    stopMusic();
+    if(btn){ btn.classList.remove('on'); btn.textContent = '🎵'; }
+    try { localStorage.setItem('cs2_dota_music', 'off'); } catch(e){}
+  } else {
+    startMusic();
+    if(btn){ btn.classList.add('on'); btn.textContent = '🎶'; }
+    try { localStorage.setItem('cs2_dota_music', 'on'); } catch(e){}
+  }
+  if(navigator.vibrate) navigator.vibrate(10);
+}
+
+function loadMusicPref(){
+  try{
+    if(localStorage.getItem('cs2_dota_music') === 'on'){
+      const btn = document.getElementById('music-toggle');
+      if(btn){ btn.classList.add('on'); btn.textContent = '🎶'; }
+
+      // Стартуем при первом клике по странице (браузеры не дают иначе)
+      document.addEventListener('click', function once(){
+        document.removeEventListener('click', once);
+        if(!musicOn){
+          startMusic();
+        }
+      }, { once: true });
+    }
+  } catch(e){}
+}
+function sndBigWin(){
+  initAudio();
+  // Глубокий бас — «бум»
+  const t=audioCtx.currentTime;
+  const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+  o.type='sine';o.frequency.setValueAtTime(80,t);
+  o.frequency.exponentialRampToValueAtTime(35,t+0.6);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(.25,t+0.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+1.2);
+  o.connect(g);g.connect(masterGain);
+  o.start(t);o.stop(t+1.3);
+  // Вибрация баса в сабвуфере
+  const o2=audioCtx.createOscillator();const g2=audioCtx.createGain();
+  o2.type='triangle';o2.frequency.setValueAtTime(60,t);
+  g2.gain.setValueAtTime(0,t);
+  g2.gain.linearRampToValueAtTime(.18,t+0.03);
+  g2.gain.exponentialRampToValueAtTime(.0001,t+0.9);
+  o2.connect(g2);g2.connect(masterGain);
+  o2.start(t);o2.stop(t+1);
+  // Фанфары поверх
+  setTimeout(()=>{
+    [523,659,784,1047].forEach((n,i)=>richTone(n,.5,.09,i*.09));
+    bellTone(1568,.9,.06,.4);
+    bellTone(2093,.8,.05,.5);
+  },180);
+}
+// 🆕 Новые звуки
+function sndJackpot(){
+  initAudio();
+  [523,659,784,1047,1319,1568,2093].forEach((n,i)=>richTone(n,.3,.08,i*.07));
+  setTimeout(()=>{
+    [523,659,784,1047].forEach(n=>richTone(n,1.4,.09,0));
+    [1319,1568,2093].forEach(n=>richTone(n,1.1,.06,.05));
+    bellTone(2637,1.2,.05,.3);
+  },600);
+}
+
+function sndLevelUp(){
+  initAudio();
+  [523,659,784,1047,1319,1568].forEach((n,i)=>richTone(n,.4,.08,i*.09));
+  bellTone(2093,1.0,.06,.6);
+}
+
+function sndAchievement(){
+  initAudio();
+  richTone(1047,.15,.08);
+  richTone(1319,.15,.08,.09);
+  bellTone(1568,.7,.09,.18);
+}
 function toggleSidebar(){
   const sb=document.querySelector('.sb');
   const btn=document.getElementById('sb-toggle');
@@ -2090,7 +2393,7 @@ function performCraft(){
     if(navigator.vibrate) navigator.vibrate(30);
   },800);
 }
-function showCraftResult(s,totalValue){const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');const diff=s.price-totalValue;const sign=diff>=0?'+':'';const ratio=s.price/totalValue;let outcome,icon,title,color;if(diff>totalValue*0.2){outcome='win';icon='🎉';title='В плюс!';color='var(--green-bright)';}else if(diff<-totalValue*0.2){outcome='lose';icon='💥';title='В минус...';color='var(--red-bright)';}else if(diff>0){outcome='small-win';icon='✨';title='Небольшой плюс';color='var(--green-bright)';}else if(diff<0){outcome='small-lose';icon='😐';title='Немного в минус';color='var(--orange)';}else{outcome='even';icon='🔨';title='Ровно';color='var(--yellow-bright)';}c.className='rc '+(outcome==='win'||outcome==='small-win'?'s':(outcome==='lose'||outcome==='small-lose'?'f':''));document.getElementById('result-icon').textContent=icon;document.getElementById('result-title').textContent=title;document.getElementById('result-title').style.color=color;document.getElementById('result-subtitle').innerHTML='Получен скин: <b>'+s.name+'</b><br>Цена: <b>'+s.price+' 🪙</b> &nbsp;|&nbsp; Вложено: '+totalValue+' 🪙<br><span style="color:'+color+';font-weight:bold">Разница: '+sign+diff+' 🪙 ('+ratio.toFixed(2)+'x)</span>';document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+s.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';crwonSkinPending=s;createParticles();o.classList.add('show');}
+function showCraftResult(s,totalValue){const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');const diff=s.price-totalValue;const sign=diff>=0?'+':'';const ratio=s.price/totalValue;let outcome,icon,title,color;if(diff>totalValue*0.2){outcome='win';icon='🎉';title='В плюс!';color='var(--green-bright)';}else if(diff<-totalValue*0.2){outcome='lose';icon='💥';title='В минус...';color='var(--red-bright)';}else if(diff>0){outcome='small-win';icon='✨';title='Небольшой плюс';color='var(--green-bright)';}else if(diff<0){outcome='small-lose';icon='😐';title='Немного в минус';color='var(--orange)';}else{outcome='even';icon='🔨';title='Ровно';color='var(--yellow-bright)';}c.className='rc '+(outcome==='win'||outcome==='small-win'?'s':(outcome==='lose'||outcome==='small-lose'?'f':''));document.getElementById('result-icon').textContent=icon;document.getElementById('result-title').textContent=title;document.getElementById('result-title').style.color=color;document.getElementById('result-subtitle').innerHTML='Получен скин: <b>'+s.name+'</b><br>Цена: <b>'+s.price+' 🪙</b> &nbsp;|&nbsp; Вложено: '+totalValue+' 🪙<br><span style="color:'+color+';font-weight:bold">Разница: '+sign+diff+' 🪙 ('+ratio.toFixed(2)+'x)</span>';document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+s.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';wonSkinPending=s;createParticles();o.classList.add('show');}
 const TAB_ORDER=['upgrade','craft','dota','dota-craft','casino','roulette','cabinet','wheel','farm','achievements','quests','cases','bank'];
 
 function switchTab(tab){
@@ -2208,7 +2511,7 @@ function sellSkinFromInventory(id,event){
   // Комиссия 20% — продаём за 80% цены
   const commission=Math.max(0.05, 0.20 - getLevel().lvl*0.005); // с 20% до 5%
   const sellPrice=Math.floor(s.price*(1-commission));
-  if(!confirm(`Продать "${s.base}" за ${sellPrice} 🪙?\n(Комиссия 20% — рыночная цена ${s.price} 🪙)`))return;
+  if(!confirm(`Продать "${s.name}" за ${sellPrice} 🪙?\n(Комиссия 20% — рыночная цена ${s.price} 🪙)`))return;
   // Удаляем скин
   mySkins.splice(idx,1);
   // Убираем из выбранных, если выбран
@@ -2264,7 +2567,7 @@ function performUpgrade(){
   ar.classList.remove('arrow-spin');ar.style.transform='rotate(180deg)';void ar.offsetWidth;
   ar.classList.add('arrow-spin');ar.style.transform='rotate('+(finalAngle+spins*360)+'deg)';
   let tc=0;const ti=setInterval(()=>{sndTick();tc++;if(tc>=8)clearInterval(ti)},500);
-  setTimeout(()=>{clearInterval(ti);if(win)sndWin();else sndFail();showResult(win)},4100);
+  setTimeout(()=>{clearInterval(ti);if(!win)sndFail();showResult(win)},4100);
 }
 function showResult(win){
   const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');
@@ -2279,7 +2582,7 @@ function showResult(win){
     selectedFromSkins.forEach(s=>{const i=mySkins.findIndex(m=>m.id===s.id);if(i!==-1)mySkins.splice(i,1)});
     craftSkins=craftSkins.filter(s=>mySkins.some(m=>m.id===s.id));
     const ti=allTargetSkins.findIndex(s=>s.id===selectedTo.id);if(ti!==-1)allTargetSkins.splice(ti,1);
-    createParticles();
+    createParticles();if(selectedTo.price>=20000)sndBigWin();else sndWin();
     document.getElementById('result-actions').innerHTML='<button class="rb3 sell" onclick="sellWonSkin()">Продать за '+selectedTo.price+' 🪙</button><button class="rb3 keep" onclick="closeResult()">Оставить</button>';
     addHistory('upgrade','win',`Получен: ${selectedTo.name} (${selectedTo.price}🪙)`);
     window.__stats.wins++;window.__stats.upgrades++;window.__stats.best_win=Math.max(window.__stats.best_win,selectedTo.price);
@@ -2338,14 +2641,14 @@ function dGenTgt(){
 function dChance(){if(dSelF.length===0||!dSelT)return 0;return dChanceF(dSelF.reduce((s,x)=>s+x.price,0),dSelT.price)}
 function dUpdatePanels(){const fp=document.getElementById('dota-from-panel'),fc=document.getElementById('dota-from-content'),tp=document.getElementById('dota-to-panel'),tc=document.getElementById('dota-to-content');if(dSelF.length>0){fp.classList.add('a');const sz=THUMB_SIZES[dSelF.length]||THUMB_SIZES[3];let h='<div class="fst" style="min-height:'+sz.h+'px">';dSelF.forEach((s,i)=>{h+='<div class="ft" style="width:'+sz.w+'px;height:'+sz.h+'px"><div class="tb rb">'+(i+1)+'</div>'+dIcon(s)+'</div>'});h+='</div><div class="spn" style="margin-bottom:4px;font-size:.65rem">';dSelF.forEach(s=>{h+='<div style="padding:1px 0">'+s.name+'</div>'});h+='</div><div class="spp rp">Сумма: '+dSelF.reduce((s,x)=>s+x.price,0)+' 🪨</div>';fc.innerHTML=h;fc.className=''}else{fp.classList.remove('a');fc.className='spe';fc.innerHTML='Выберите до 3 предметов<br>в инвентаре'}if(dSelT){tp.classList.add('a');tc.innerHTML='<div class="spi">'+dIcon(dSelT)+'</div><div class="spn">'+dSelT.name+'</div><div style="display:flex;justify-content:center;width:100%"><div class="spp rp">'+dSelT.price+' 🪨</div></div>';tc.className=''}else{tp.classList.remove('a');tc.className='spe';tc.innerHTML='Выберите предмет<br>из доступных'}}
 function renderDotaMy(){const w=document.getElementById('dota-my-wrap');document.getElementById('dota-mc').textContent='('+dMy.length+')';if(dMy.length===0){w.innerHTML='<div class="em">Нет предметов. Купите в магазине!</div>';return}let h='<div class="sg">';dMy.forEach(s=>{const is=dSelF.some(x=>x.id===s.id);const idx=dSelF.findIndex(x=>x.id===s.id);const t=DT[dT(s.price)];h+='<div class="sc2 dc'+(is?' dsf':'')+' '+getDotaSkinClass(s.price)+'" style="--leg-color:'+getDotaRarityColor(s.price)+'" onclick="toggleDotaF('+s.id+',this)">'+getDotaSparkles(s.price)+'<button class="sell-btn rune" onclick="event.stopPropagation();sellDotaItemFromInventory('+s.id+',event)" title="Продать за '+Math.floor(s.price*0.8)+' 🪨">$</button><div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+(is?'<div class="sbg rb">'+(idx+1)+'</div>':'')+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
-  if(wonSkinPending){
-    const cards=w.querySelectorAll('.sc2');
-    cards.forEach(card=>{
-      if(card.innerHTML.includes(wonSkinPending.name)){
-        flashRarity(card,wonSkinPending.price);
-      }
-    });
-  }
+  if(typeof dWon!=='undefined' && dWon){
+  const cards=w.querySelectorAll('.sc2');
+  cards.forEach(card=>{
+    if(card.innerHTML.includes(dWon.name)){
+      flashDotaRarity(card,dWon.price);
+    }
+  });
+}
 }
 function renderDotaTgt(){const w=document.getElementById('dota-tgt-wrap');document.getElementById('dota-tc').textContent='('+dTgt.length+')';if(dTgt.length===0){w.innerHTML='<div class="em">Выберите шанс и предметы — цели появятся здесь</div>';return}let h='<div class="sg">';dTgt.forEach(s=>{const sel=dSelT&&dSelT.id===s.id?' st2':'';const t=DT[dT(s.price)];h+='<div class="sc2 dc'+sel+' '+getDotaSkinClass(s.price)+'" style="--leg-color:'+getDotaRarityColor(s.price)+'" onclick="selDota('+s.id+',this)">'+getDotaSparkles(s.price)+'<div class="siw">'+dIcon(s)+'</div><div class="sn2">'+s.name+'</div><div class="sp2 rt">'+s.price+'🪨</div><div class="stl" style="color:'+t.c+'">'+t.n+'</div>'+dBar(s.price)+'</div>'});w.innerHTML=h+'</div>';
   if(typeof dWon!=='undefined' && dWon){
@@ -2416,7 +2719,7 @@ function doDotaUpgrade(){
   ar.classList.remove('arrow-spin');ar.style.transform='rotate(180deg)';void ar.offsetWidth;
   ar.classList.add('arrow-spin');ar.style.transform='rotate('+(finalAngle+spins*360)+'deg)';
   let tc=0;const ti=setInterval(()=>{sndTick();tc++;if(tc>=8)clearInterval(ti)},500);
-  setTimeout(()=>{clearInterval(ti);if(win)sndWin();else sndFail();showDotaResult(win)},4100);
+  setTimeout(()=>{clearInterval(ti);if(!win)sndFail();showDotaResult(win)},4100);
 }
 function showDotaResult(win){
   const o=document.getElementById('result-overlay'),c=document.getElementById('result-card');
@@ -2430,7 +2733,7 @@ function showDotaResult(win){
     dMy.push(ns);dWon=ns;
     dSelF.forEach(s=>{const i=dMy.findIndex(m=>m.id===s.id);if(i!==-1)dMy.splice(i,1)});
     const ti=dTgt.findIndex(s=>s.id===dSelT.id);if(ti!==-1)dTgt.splice(ti,1);
-    createDotaParticles();
+    createDotaParticles();if(dSelT.price>=8000)sndBigWin();else sndWin();
     document.getElementById('result-actions').innerHTML='<button class="rb3 sell rsell" onclick="sellDotaWon()">Продать за '+dSelT.price+' 🪨</button><button class="rb3 keep" onclick="closeDotaResult()">Оставить</button>';
     addHistory('dota','win',`Получен: ${dSelT.name} (${dSelT.price}🪨)`);
     window.__stats.wins++;window.__stats.upgrades++;window.__stats.best_win=Math.max(window.__stats.best_win,dSelT.price);
@@ -2534,7 +2837,7 @@ function dPerformCraft(){
     dSelF=dSelF.filter(s=>dMy.some(m=>m.id===s.id));
     dMy.push(ns);dWon=ns;dCraftItems=[];
     dRenderCraftSlots();dRenderCraftInventory();renderDotaMy();updateDotaUI();dUpdatePanels();
-    const _fr=Math.max(1,Math.floor(ns.price/150*(1+getBonus())));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🔨 +${_fr} 🍉 за крафт!`),400);showCraftResult(ns,totalValue);saveGame();window.__stats.crafts++;renderCabinet();
+    const _fr=Math.max(1,Math.floor(ns.price/150*(1+getBonus())));fruit+=_fr;updateFruitDisplay();updateCasinoUI();setTimeout(()=>showToast(`🔨 +${_fr} 🍉 за крафт!`),400);dShowCraftResult(ns,totalValue);saveGame();window.__stats.crafts++;renderCabinet();
     progressQuest('craft2');progressQuest('craft5');
     checkAchievements();
     addXP(15);
@@ -2635,7 +2938,7 @@ function generateSymbols(outcome){
     arr[pos] = other;
     return arr;
   }
-  const sym = outcome[0];
+  const sym = Array.from(outcome)[0];
   return [sym, sym, sym];
 }
 
@@ -2731,9 +3034,9 @@ function calculateSlotResult(symbols){
     }
     
     if(isJackpot){
-      casinoFlash();
-      casinoRainCoins(window.innerWidth<780?18:30);
-      sndWin(); sndWin();
+     casinoFlash();
+     casinoRainCoins(window.innerWidth<780?18:30);
+     sndJackpot();
       if(navigator.vibrate) navigator.vibrate([50,30,50,30,50,30,100]);
     } else {
       sndWin();
@@ -3296,7 +3599,7 @@ function addXP(amount){
   if(newLevel>oldLevel){
   const l=getLevel();
   showLevelUpToast(l);
-  sndWin();
+  sndLevelUp();
   casinoRainCoins(20);
   casinoFlash();
   if(navigator.vibrate)navigator.vibrate([30,50,30,50,100]);
@@ -3522,11 +3825,6 @@ function renderCases(){
     </div>`;
   });
   list.innerHTML=h;
-setTimeout(()=>{
-  CASES.forEach(c=>{
-    const btns=list.querySelectorAll('button');
-  });
-},0);
 }
 
 function openCase(caseId){
@@ -3722,7 +4020,7 @@ function checkAchievements(){
       if(a.reward.runes)dCur+=a.reward.runes;
       setTimeout(()=>{
         showToast(`🏅 ${a.icon} ${a.name}! +${a.reward.coins||a.reward.fruit||a.reward.runes} ${a.reward.coins?'🪙':(a.reward.fruit?'🍉':'🪨')}`);
-        sndWin();
+        sndAchievement();
       },500);
     }
   });
@@ -4040,6 +4338,7 @@ setInterval(()=>{if(currentTab==='farm')renderFarm();else farmTick();},5000);
 setInterval(farmSave,15000);
 // ===== BOOT =====
 loadTheme();
+loadMusicPref();
 updateUserProfile();
 if(tryAutoLogin()){
   updateUserProfile();
